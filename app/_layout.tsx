@@ -1,16 +1,10 @@
-import { Stack } from "expo-router";
+import LoginScreen from "./login";
+import { initDB } from "./db/database";
+import { useEffect } from "react";
 
 export default function RootLayout() {
-
-    return (
-    <Stack screenOptions={{ headerShown: false }}>
-      {/* Auth screens (outside tabs) */}
-      <Stack.Screen name="login" />
-      <Stack.Screen name="signup" />
-
-      {/* Main app (inside tabs group) */}
-      <Stack.Screen name="(tabs)" />
-    </Stack>
-  );  
-
+  useEffect(() => {
+    initDB();
+  },[]); 
+  return <LoginScreen/>;
 }
