@@ -2,20 +2,20 @@ import { Link } from "expo-router";
 import React from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
-export default function LoginScreen() {
+export default function SignupScreen() {
   const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Login</Text>
+      <Text style={styles.title}>Sign up</Text>
       
       <TextInput style={styles.input} placeholder="Username" value={username} onChangeText={setUsername}/>
       <TextInput style={styles.input} placeholder="Password" secureTextEntry value ={password} onChangeText={setPassword}/>
-      <Pressable style={styles.button} onPress={() => console.log("Logging in...")}>
-        <Text style={styles.buttonText}>Log In</Text>
+      <Pressable style={styles.button} onPress={() => console.log("Signing up...")}>
+        <Text style={styles.buttonText}>Sign up</Text>
       </Pressable>
-      <Link href="/signup" style={styles.linkToSignUp}> 
-        Don't have an account? Sign Up. 
+      <Link href="/login" style={styles.linkToSignUp}> 
+        Have an account? Log in. 
       </Link>
     </View>
   );
