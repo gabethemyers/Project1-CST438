@@ -1,5 +1,5 @@
 import React from 'react';
-import {StyleSheet, TextInput, Image, View} from 'react-native';
+import {StyleSheet, Text, TextInput, Image, View} from 'react-native';
 import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
 
 const TextInputExample = () => {
@@ -9,39 +9,45 @@ const TextInputExample = () => {
   return (
     <SafeAreaProvider>
       <SafeAreaView>
-        <TextInput
+
+        <View style={styles.container}>
+
+          <Image
+              source={require('../assets/images/swordLogo.png')}
+              style={{width: 100, height: 100}}
+            
+            />
+
+            <Text style={styles.arn1cap}>
+              Arena 1
+            </Text>
+        </View>
+
+        
+        {/* <TextInput
           style={styles.input}
           onChangeText={onChangeText}
           value={arenaLvl}
           placeholder="Enter Arena Level"
           keyboardType="numeric"
-        />
-        <TextInput
-          style={styles.input}
-          onChangeText={onChangeNumber}
-          value={specificMods}
-          placeholder="Enter any desired modifications"
-          keyboardType="numeric"
-        />
-        <View style={{alignItems: 'center'}}>
-          <Image 
-              source={require('../assets/images/clash-royal.png')} 
-              style={{ width: 800, height: 350}} 
-          />
-          </View>
+        /> */}
+
       </SafeAreaView>
     </SafeAreaProvider>
   );
 };
 
 const styles = StyleSheet.create({
-  input: {
+  arn1cap: {
     height: 40,
     margin: 12,
     borderWidth: 1,
     padding: 10,
     color: 'white',
-  }, 
+  },
+  container: {
+
+  },
 });
 
 export default TextInputExample;
