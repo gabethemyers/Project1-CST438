@@ -1,6 +1,7 @@
 import { Stack } from "expo-router";
 
 export default function RootLayout() {
+
     return (
     <Stack screenOptions={{ headerShown: false }}>
       {/* Auth screens (outside tabs) */}
@@ -11,5 +12,8 @@ export default function RootLayout() {
       <Stack.Screen name="(tabs)" />
     </Stack>
   );  
+
+
+  return <LoginScreen/>;
 
 }
