@@ -1,20 +1,33 @@
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import React from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
 export default function LoginScreen() {
   const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
+  const router = useRouter();
+
+   const handleLogin = () => {
+    // TODO: Replace with real authentication logic
+    const userExists = true; // Replace with DB check
+    if (userExists) {
+      router.replace("/(tabs)/landingPage");// Navigates to landing page
+    } else {
+       console.log("Invalid credentials");
+    }
+  };
+
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Login</Text>
       
       <TextInput style={styles.input} placeholder="Username" value={username} onChangeText={setUsername}/>
       <TextInput style={styles.input} placeholder="Password" secureTextEntry value ={password} onChangeText={setPassword}/>
-      <Pressable style={styles.button} onPress={() => console.log("Logging in...")}>
+      <Pressable style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>Log In</Text>
       </Pressable>
-      <Link href="/login" style={styles.linkToSignUp}> 
+      <Link href="/signup" style={styles.linkToSignUp}> 
         Don't have an account? Sign Up. 
       </Link>
     </View>

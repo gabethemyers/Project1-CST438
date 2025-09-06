@@ -1,6 +1,6 @@
 import React from 'react';
-import {StyleSheet, TextInput, Image, View} from 'react-native';
-import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
+import { StyleSheet, TextInput } from 'react-native';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 const TextInputExample = () => {
   const [arenaLvl, onChangeText] = React.useState('');
@@ -23,12 +23,7 @@ const TextInputExample = () => {
           placeholder="Enter any desired modifications"
           keyboardType="numeric"
         />
-        <View style={{alignItems: 'center'}}>
-          <Image 
-              source={require('../assets/images/clash-royal.png')} 
-              style={{ width: 800, height: 350}} 
-          />
-          </View>
+       
       </SafeAreaView>
     </SafeAreaProvider>
   );
