@@ -13,7 +13,4 @@ export default function RootLayout() {
     </Stack>
   );  
 
-
-  return <LoginScreen/>;
-
 }
