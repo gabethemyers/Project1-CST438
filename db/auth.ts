@@ -1,5 +1,14 @@
 import * as bcrypt from 'bcryptjs';
 import { getDBConnection } from './connection';
+
+import * as Random from "expo-random";
+import { getDBConnection } from './connection';
+
+bcrypt.setRandomFallback((len: number) => {
+  const buf = Random.getRandomBytes(len);
+  return Array.from(buf).map(x => x % 256);
+});
+
 interface User {
     id: number;
     username: string;
@@ -37,4 +46,38 @@ export async function verifyUser(username: string, plainTextPassword: string) {
     }
 
     return null; // Password does not match
+
+  const db = await getDBConnection();
+
+  // (optional) prevent dup usernames if table isn’t UNIQUE
+  const existing = await db.getFirstAsync<{ id: number }>(
+    "SELECT id FROM users WHERE username = ?",
+    [username]
+  );
+  if (existing) throw new Error("Username already taken");
+
+  //  hashes password entered 
+  const hashedPassword = bcrypt.hashSync(plainTextPassword, saltRounds);
+
+  const result = await db.runAsync(
+    "INSERT INTO users (username, password) VALUES (?, ?)",
+    [username, hashedPassword]
+  );
+  return result.lastInsertRowId;
+}
+
+export async function verifyUser(username: string, plainTextPassword: string) {
+  const db = await getDBConnection();
+  const user = await db.getFirstAsync<{ id: number; username: string; password_hash: string }>(
+    "SELECT id, username, password AS password_hash FROM users WHERE username = ?",
+    [username]
+  );
+  if (!user) return null;
+
+  // ✅ compare synchronously
+  const ok = bcrypt.compareSync(plainTextPassword, user.password_hash);
+  if (!ok) return null;
+
+  const { password_hash, ...safeUser } = user;
+  return safeUser;
 }
