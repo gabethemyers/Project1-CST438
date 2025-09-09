@@ -1,3 +1,12 @@
+import { Link } from "expo-router";
+import React from "react";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+
+
+export default function SignupScreen() {
+ const [username, setUsername] = React.useState("");
+ const [password, setPassword] = React.useState("");
+
 import { Link, useRouter } from "expo-router";
 import React from "react";
 import { Alert, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
@@ -40,7 +49,7 @@ export default function SignupScreen() {
     
      <TextInput style={styles.input} placeholder="Username" value={username} onChangeText={setUsername}/>
      <TextInput style={styles.input} placeholder="Password" secureTextEntry value ={password} onChangeText={setPassword}/>
-     <Pressable style={styles.button} onPress={onSignUp} disabled={!canSubmit || loading}>
+
        <Text style={styles.buttonText}>Sign up</Text>
      </Pressable>
      <Link href="/login" style={styles.linkToSignUp}>

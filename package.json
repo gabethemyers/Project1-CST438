@@ -49,7 +49,10 @@
     "@babel/core": "^7.25.2",
     "@testing-library/jest-native": "^5.4.3",
     "@testing-library/react-native": "^13.3.3",
+    "@types/bcrypt": "^6.0.0",
+
     "@types/bcryptjs": "^2.4.6",
+
     "@types/jest": "^30.0.0",
     "@types/react": "~19.0.10",
     "eslint": "^9.25.0",
@@ -71,6 +74,7 @@
     ],
     "transformIgnorePatterns": [
       "node_modules/(?!((jest-)?react-native|@react-native|@react-navigation|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-clone-referenced-element))"
+    ]
     ],
     "moduleNameMapper": {
       "^@/(.*)$": "<rootDir>/$1"
