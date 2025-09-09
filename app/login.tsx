@@ -1,19 +1,34 @@
 import { Link, useRouter } from "expo-router";
 import React from "react";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { verifyUser } from "../db/auth";
 
 export default function LoginScreen() {
+  const [loading, setLoading] = React.useState(false);
   const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
   const router = useRouter();
 
-   const handleLogin = () => {
-    // TODO: Replace with real authentication logic
-    const userExists = true; // Replace with DB check
-    if (userExists) {
-      router.replace("/(tabs)/landingPage");// Navigates to landing page
-    } else {
-       console.log("Invalid credentials");
+  const canSubmit = username.trim().length > 0 && password.length > 0;
+
+    const handleLogin = async () => {
+    if (!canSubmit) {
+      Alert.alert("Missing info", "Enter a username and password.");
+      return;
+    }
+    setLoading(true);
+    try {
+      const user = await verifyUser(username.trim(), password);
+      if (!user) {
+        Alert.alert("Invalid credentials", "Username or password is incorrect.");
+        return;
+      }
+      // Optionally store a simple session here (AsyncStorage) before navigating
+      router.replace("/(tabs)/landingPage");
+    } catch (e: any) {
+      Alert.alert("Login error", String(e?.message || e));
+    } finally {
+      setLoading(false);
     }
   };
 

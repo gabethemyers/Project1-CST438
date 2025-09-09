@@ -1,18 +1,46 @@
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import React from "react";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
-
+import { Alert, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { createUser } from "../db/auth";
 
 export default function SignupScreen() {
+ const router = useRouter()
  const [username, setUsername] = React.useState("");
  const [password, setPassword] = React.useState("");
+ const [loading, setLoading] = React.useState(false);
+
+ const canSubmit = username.trim().length >= 3 && password.length >= 6;
+
+  const onSignUp = async () => {
+    if (!canSubmit) {
+      Alert.alert("Invalid input", "Username must be 3+ chars and password 6+.");
+      return;
+    }
+    setLoading(true);
+    try {
+      // This will hash the password and INSERT into users
+      const id = await createUser(username.trim(), password);
+      Alert.alert("Success", `Account created (id ${id}).`);
+      router.replace("/(tabs)/landingPage");
+    } catch (e: any) {
+      const msg = String(e?.message || e);
+      //  createUser should check for duplicates and throw "Username already taken".
+      if (msg.toLowerCase().includes("unique") || msg.toLowerCase().includes("taken")) {
+        Alert.alert("Username taken", "Please choose a different username.");
+      } else {
+        Alert.alert("Sign up error", msg);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
  return (
    <View style={styles.container}>
      <Text style={styles.title}>Sign up</Text>
     
      <TextInput style={styles.input} placeholder="Username" value={username} onChangeText={setUsername}/>
      <TextInput style={styles.input} placeholder="Password" secureTextEntry value ={password} onChangeText={setPassword}/>
-     <Pressable style={styles.button} onPress={() => console.log("Signing up...")}>
+     <Pressable style={styles.button} onPress={onSignUp} disabled={!canSubmit || loading}>
        <Text style={styles.buttonText}>Sign up</Text>
      </Pressable>
      <Link href="/login" style={styles.linkToSignUp}>
