@@ -1,13 +1,3 @@
-import { fireEvent, render } from "@testing-library/react-native";
-import React from "react";
-import LoginScreen from "../app/login"; // adjust if your file lives in (tabs)/login
-
-// Mock expo-router's Link to avoid navigation errors in tests
-jest.mock("expo-router", () => ({
-  Link: ({ children }: any) => children || null,
-}));
-
-describe("LoginScreen", () => {
 import { fireEvent, render, waitFor } from "@testing-library/react-native";
 import React from "react";
 import { Alert } from "react-native";
@@ -42,17 +32,6 @@ describe("LoginScreen", () => {
     expect(getByText("Log In")).toBeTruthy();
   });
 
-  it("lets user type and press login button", () => {
-    const logSpy = jest.spyOn(console, "log").mockImplementation(() => {});
-    const { getByPlaceholderText, getByText } = render(<LoginScreen />);
-
-    fireEvent.changeText(getByPlaceholderText("Username"), "alice");
-    fireEvent.changeText(getByPlaceholderText("Password"), "secret123");
-
-    fireEvent.press(getByText("Log In"));
-    expect(logSpy).toHaveBeenCalledWith("Logging in...");
-
-    logSpy.mockRestore();
   it("lets user type and navigates on successful login", async () => {
     (verifyUser as jest.Mock).mockResolvedValue({ id: 1, username: "alice" });
 
@@ -61,7 +40,6 @@ describe("LoginScreen", () => {
     fireEvent.changeText(getByPlaceholderText("Password"), "secret123");
     fireEvent.press(getByText("Log In"));
 
-    // ⬇️ wait for the async handler to finish and assert navigation
     await waitFor(() =>
       expect(mockReplace).toHaveBeenCalledWith("/(tabs)/landingPage")
     );
@@ -77,7 +55,7 @@ describe("LoginScreen", () => {
 
     await waitFor(() => {
       expect(mockReplace).not.toHaveBeenCalled();
-      // optionally assert an alert was shown:
+      // Optionally assert an alert was shown:
       // expect(Alert.alert).toHaveBeenCalled();
     });
   });
