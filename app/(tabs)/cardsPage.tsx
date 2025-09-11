@@ -19,7 +19,7 @@ interface Card{
 const CardsScreen = () => {
 
     // Enter your own api key inside of this apikey variable
-    const apiKey = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiIsImtpZCI6IjI4YTMxOGY3LTAwMDAtYTFlYi03ZmExLTJjNzQzM2M2Y2NhNSJ9.eyJpc3MiOiJzdXBlcmNlbGwiLCJhdWQiOiJzdXBlcmNlbGw6Z2FtZWFwaSIsImp0aSI6ImY1NjY2NzQwLTZlZTgtNDAyNy05M2RkLTZkNjhkOTdlZTY3OCIsImlhdCI6MTc1Njc4NDQ0NSwic3ViIjoiZGV2ZWxvcGVyL2JkNDUyNjQ5LWQ0NmYtYzc2Zi02NzAwLWJmMTAzZDM3MzFkNyIsInNjb3BlcyI6WyJyb3lhbGUiXSwibGltaXRzIjpbeyJ0aWVyIjoiZGV2ZWxvcGVyL3NpbHZlciIsInR5cGUiOiJ0aHJvdHRsaW5nIn0seyJjaWRycyI6WyIxNzIuNTkuMTYyLjY2IiwiMTk4LjE4OS4yNDkuNzAiXSwidHlwZSI6ImNsaWVudCJ9XX0.zWAuhyLSMEr8ZVgTMrXHwRQIurqvzWEOXJn88qe6fN4CqP6LR5_LxOgqscdECNWC4u-h44CdVVd4GzZpXMSVlA";
+    const apiKey = "";
     
     // Url used to fetch all the cards in the api request
     const url = "https://api.clashroyale.com/v1/cards";
