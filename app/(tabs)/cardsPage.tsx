@@ -19,7 +19,7 @@ interface Card{
 const CardsScreen = () => {
 
     // Enter your own api key inside of this apikey variable
-    const apiKey = "Enter api key here";
+    const apiKey = "";
     
     // Url used to fetch all the cards in the api request
     const url = "https://api.clashroyale.com/v1/cards";
@@ -44,7 +44,7 @@ const CardsScreen = () => {
         const fetchCardData = async () => {
         const response = await fetch(url, requestOptions);
         const result = await response.json();
-        console.log(result)
+        //console.log(result)
         setData(result.items || []);
         }
         fetchCardData();
