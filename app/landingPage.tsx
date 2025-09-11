@@ -78,7 +78,7 @@ const TextInputExample = () => {
 const styles = StyleSheet.create({
   arenaCap: {
 
-    color: 'white',
+    color: 'black',
   },
   arenaCon: {
     flexDirection: 'row',
