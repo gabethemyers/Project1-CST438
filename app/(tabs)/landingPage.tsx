@@ -1,42 +1,96 @@
 import React from 'react';
-import { StyleSheet, TextInput } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 const TextInputExample = () => {
-  const [arenaLvl, onChangeText] = React.useState('');
-  const [specificMods, onChangeNumber] = React.useState('');
+  // const [arenaLvl, onChangeText] = React.useState('');
+  // const [specificMods, onChangeNumber] = React.useState('');
 
   return (
     <SafeAreaProvider>
       <SafeAreaView>
-        <TextInput
+
+        <View style={styles.container}>
+
+          <Image
+              source={require('../../assets/images/swordLogo.png')}
+              style={{width: 100, height: 100}}
+            
+            />
+
+          <Image
+              source={require('../../assets/images/swordLogo.png')}
+              style={{width: 100, height: 100}}
+            
+            />
+
+            <Image
+              source={require('../../assets/images/swordLogo.png')}
+              style={{width: 100, height: 100}}
+            
+            />
+
+            <Image
+              source={require('../../assets/images/swordLogo.png')}
+              style={{width: 100, height: 100}}
+            
+            />
+
+          
+        </View>
+
+        <View style={styles.arenaCon}>
+
+          <Text style={styles.arenaCap}>
+            Arena 1
+          </Text>
+
+          <Text style={styles.arenaCap}>
+            Arena 2
+          </Text>
+
+          <Text style={styles.arenaCap}>
+            Arena 3
+          </Text>
+
+          <Text style={styles.arenaCap}>
+            Arena 4
+          </Text>
+
+
+        </View>
+
+
+        
+        {/* <TextInput
           style={styles.input}
           onChangeText={onChangeText}
           value={arenaLvl}
           placeholder="Enter Arena Level"
           keyboardType="numeric"
-        />
-        <TextInput
-          style={styles.input}
-          onChangeText={onChangeNumber}
-          value={specificMods}
-          placeholder="Enter any desired modifications"
-          keyboardType="numeric"
-        />
-       
+        /> */}
+
       </SafeAreaView>
     </SafeAreaProvider>
   );
 };
 
 const styles = StyleSheet.create({
-  input: {
-    height: 40,
-    margin: 12,
-    borderWidth: 1,
+  arenaCap: {
+
+    color: 'black',
+  },
+  arenaCon: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    flex: 1,
+  },
+  container: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    flex: 1,
     padding: 10,
-    color: 'white',
-  }, 
+  },
 });
 
 export default TextInputExample;
