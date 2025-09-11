@@ -9,13 +9,6 @@ export default function LoginScreen() {
   const [password, setPassword] = React.useState("");
   const router = useRouter();
 
-   const handleLogin = () => {
-    // TODO: Replace with real authentication logic
-    const userExists = true; // Replace with DB check
-    if (userExists) {
-      router.replace("/(tabs)/landingPage");// Navigates to landing page
-    } else {
-       console.log("Invalid credentials");
   const canSubmit = username.trim().length > 0 && password.length > 0;
 
     const handleLogin = async () => {
