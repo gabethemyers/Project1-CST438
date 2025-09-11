@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     flex: 1,
-    padding: 10,
+    padding: 10, 
   },
 });
 
