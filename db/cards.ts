@@ -16,7 +16,7 @@ export const fetchCardsFromAPI = async (): Promise<Card[]> => {
     return data.items; // array of cards
 };
 
-interface Card {
+export interface Card {
     name: string;
     id: number;
     elixirCost: number;
