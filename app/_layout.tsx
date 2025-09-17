@@ -8,9 +8,12 @@ export default function RootLayout() {
       <Stack.Screen name="login" />
       <Stack.Screen name="signup" />
 
+      {/* detail screen outside the tabs */}
+      <Stack.Screen name="player/[tag]" options={{ title: "Player", headerShown: true }} />
+
+
       {/* Main app (inside tabs group) */}
       <Stack.Screen name="(tabs)" />
     </Stack>
   );  
-
 }

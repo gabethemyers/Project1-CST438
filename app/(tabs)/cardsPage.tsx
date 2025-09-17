@@ -1,5 +1,5 @@
-import { View, Text, StyleSheet, TextInput, Button, Image, ScrollView } from 'react-native'
-import React, {useEffect, useState} from 'react'
+import React, { useEffect, useState } from 'react';
+import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 // This interface is created in order to store the api's response inside of an array of type Card
 interface Card{
@@ -19,7 +19,7 @@ interface Card{
 const CardsScreen = () => {
 
     // Enter your own api key inside of this apikey variable
-    const apiKey = "Enter api key here";
+    const apiKey = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiIsImtpZCI6IjI4YTMxOGY3LTAwMDAtYTFlYi03ZmExLTJjNzQzM2M2Y2NhNSJ9.eyJpc3MiOiJzdXBlcmNlbGwiLCJhdWQiOiJzdXBlcmNlbGw6Z2FtZWFwaSIsImp0aSI6ImJiOTU5ZWViLTQ2YzAtNGI3NS1iYjdkLTBkMTRiNzg2ZjIxNCIsImlhdCI6MTc1ODA1MTIzNiwic3ViIjoiZGV2ZWxvcGVyLzY5MzY3ODE2LTM2YjctYTMzYy0zNzY5LTE5NmMyNDcyYTc3MSIsInNjb3BlcyI6WyJyb3lhbGUiXSwibGltaXRzIjpbeyJ0aWVyIjoiZGV2ZWxvcGVyL3NpbHZlciIsInR5cGUiOiJ0aHJvdHRsaW5nIn0seyJjaWRycyI6WyIxOTguMTg5LjI0OS43MyIsIjE3NC44NS45OS4xNjkiXSwidHlwZSI6ImNsaWVudCJ9XX0.7J0lte_XOk25woxuxAzBqrylSQcBVr2cSz4pD1Wr4f1-qAUvU4qlBpTDeq1ZJ3ZdweAzlaLAQHVLpQUiGQ4CpA";
     
     // Url used to fetch all the cards in the api request
     const url = "https://api.clashroyale.com/v1/cards";
