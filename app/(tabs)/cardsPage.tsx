@@ -2,23 +2,14 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import React, { useEffect, useState } from 'react';
 import { Button, Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
+import { useDeckBuilder } from '../../context/DeckBuilderContext';
+import { Card } from '../../db/cards';
 
 
 
 
 // This interface is created in order to store the api's response inside of an array of type Card
-export interface Card{
-    name: string;
-    id: number;
-    elixirCost: number;
-    rarity: string;
-    maxLevel: number;
-    maxEvolutionLevel: number;
-    iconUrls?: {
-        medium?: string;
-        evolutionMedium?: string;
-    };
-}
+
 
 const rarities = [
     { label: 'Common', value: 'common' },
@@ -29,20 +20,20 @@ const rarities = [
 ];
 
 const elixirs = [
-  { label: 'All', value: null },
-  { label: '1', value: 1 },
-  { label: '2', value: 2 },
-  { label: '3', value: 3 },
-  { label: '4', value: 4 },
-  { label: '5', value: 5 },
-  { label: '6', value: 6 },
-  { label: '7', value: 7 },
-  { label: '8', value: 8 },
-  { label: '9', value: 9 },
-  { label: '10', value: 10 },
+    { label: 'All', value: null },
+    { label: '1', value: 1 },
+    { label: '2', value: 2 },
+    { label: '3', value: 3 },
+    { label: '4', value: 4 },
+    { label: '5', value: 5 },
+    { label: '6', value: 6 },
+    { label: '7', value: 7 },
+    { label: '8', value: 8 },
+    { label: '9', value: 9 },
+    { label: '10', value: 10 },
 ];
 
-    
+
 
 
 
@@ -51,9 +42,9 @@ const CardsScreen = () => {
 
     // Enter your own api key inside of this apikey variable
 
-    const apiKey = "Enter Api Key Here";
+    const apiKey = process.env.EXPO_PUBLIC_CLASH_ROYALE_API_KEY;
 
-    
+
     // Url used to fetch all the cards in the api request
     const url = "https://api.clashroyale.com/v1/cards";
 
@@ -61,24 +52,24 @@ const CardsScreen = () => {
     const requestOptions = {
         method: 'GET',
         headers: {
-            'Authorization': `Bearer ${apiKey}`, 
+            'Authorization': `Bearer ${apiKey}`,
             'Content-Type': 'application/json'
         }
     };
- 
+
 
 
     // Intialized An array of type Card to the apis response
-    const[data, setData] = useState<Card[]>([]);
+    const [data, setData] = useState<Card[]>([]);
 
-    useEffect(()=>{
+    useEffect(() => {
 
         // Function to fetch the apis response
         const fetchCardData = async () => {
-        const response = await fetch(url, requestOptions);
-        const result = await response.json();
-        console.log(result)
-        setData(result.items || []);
+            const response = await fetch(url, requestOptions);
+            const result = await response.json();
+            console.log(result)
+            setData(result.items || []);
         }
         fetchCardData();
     }, [])
@@ -89,10 +80,10 @@ const CardsScreen = () => {
     }, [data]);
 
 
-    
 
 
-    
+
+
 
     const [rarityFilter, setRarityFilter] = useState<string | null>(null);
     const [elixirFilter, setElixirFilter] = useState<number | null>(null);
@@ -104,18 +95,40 @@ const CardsScreen = () => {
     });
 
 
-  
+    const { activeDeck, addCard } = useDeckBuilder();
+
+    const renderItem = ({ item }: { item: Card }) => {
+        const isCardInDeck = activeDeck?.cards.some(c => c.id === item.id);
+        const isDeckFull = activeDeck ? activeDeck.cards.length >= 8 : false;
+
+        return (
+            <View>
+                {/* ... your existing card display component ... */}
+                <Text>{item.name}</Text>
+
+                {/* Only show Add button if a deck is being built */}
+                {activeDeck && (
+                    <Button
+                        title={isCardInDeck ? "Added" : "Add"}
+                        onPress={() => addCard(item)}
+                        disabled={isCardInDeck || isDeckFull}
+                    />
+                )}
+            </View>
+        );
+    };
+
     return (
         <View style={styles.container}>
             <Text style={styles.text}>Card Info:</Text>
             <View style={styles.container}>
                 <Button title="Reset Filters" onPress={() => {
-                        setRarityFilter(null);
-                        setElixirFilter(null);
-                    }
+                    setRarityFilter(null);
+                    setElixirFilter(null);
+                }
                 } />
-        
-                
+
+
                 <Dropdown
                     style={[styles.dropdown, { borderColor: 'blue' }]}
                     placeholderStyle={styles.placeholderStyle}
@@ -131,12 +144,12 @@ const CardsScreen = () => {
                     onChange={item => setRarityFilter(item.value)}
                     renderLeftIcon={() => (
                         <AntDesign
-                        style={styles.icon}
-                        color={'black'}
-                        name="filter"
-                        size={20}
+                            style={styles.icon}
+                            color={'black'}
+                            name="filter"
+                            size={20}
                         />
-                )}
+                    )}
                 />
 
                 <Dropdown
@@ -154,12 +167,12 @@ const CardsScreen = () => {
                     onChange={item => setElixirFilter(item.value)}
                     renderLeftIcon={() => (
                         <AntDesign
-                        style={styles.icon}
-                        color={'black'}
-                        name="filter"
-                        size={20}
+                            style={styles.icon}
+                            color={'black'}
+                            name="filter"
+                            size={20}
                         />
-                )}
+                    )}
                 />
 
             </View>
@@ -169,19 +182,19 @@ const CardsScreen = () => {
             {/* Show either all or filtered cards */}
             <ScrollView>
                 {displayedCards.map(card => (
-                <View key={card.id} style={{ marginBottom: 8 }}>
-                    <Text>Name: {card.name}</Text>
-                    <Text>Elixir Cost: {card.elixirCost}</Text>
-                    <Text>Rarity: {card.rarity}</Text>
-                    <Text>Max Level: {card.maxLevel}</Text>
-                    <Text>Max Evolution Level: {card.maxEvolutionLevel}</Text>
-                    {card.iconUrls?.medium && (
-                    <Image
-                        source={{ uri: card.iconUrls.medium }}
-                        style={{ width: 80, height: 80, marginVertical: 8 }}
-                    />
-                    )}
-                </View>
+                    <View key={card.id} style={{ marginBottom: 8 }}>
+                        <Text>Name: {card.name}</Text>
+                        <Text>Elixir Cost: {card.elixirCost}</Text>
+                        <Text>Rarity: {card.rarity}</Text>
+                        <Text>Max Level: {card.maxLevel}</Text>
+                        <Text>Max Evolution Level: {card.maxEvolutionLevel}</Text>
+                        {card.iconUrls?.medium && (
+                            <Image
+                                source={{ uri: card.iconUrls.medium }}
+                                style={{ width: 80, height: 80, marginVertical: 8 }}
+                            />
+                        )}
+                    </View>
                 ))}
             </ScrollView>
             {/*
@@ -215,41 +228,41 @@ export default CardsScreen
 
 const styles = StyleSheet.create({
     container: {
-      backgroundColor: 'white',
-      padding: 16,
+        backgroundColor: 'white',
+        padding: 16,
     },
     dropdown: {
-      height: 50,
-      borderColor: 'gray',
-      borderWidth: 0.5,
-      borderRadius: 8,
-      paddingHorizontal: 8,
+        height: 50,
+        borderColor: 'gray',
+        borderWidth: 0.5,
+        borderRadius: 8,
+        paddingHorizontal: 8,
     },
     icon: {
-      marginRight: 5,
+        marginRight: 5,
     },
     label: {
-      position: 'absolute',
-      backgroundColor: 'white',
-      left: 22,
-      top: 8,
-      zIndex: 999,
-      paddingHorizontal: 8,
-      fontSize: 14,
+        position: 'absolute',
+        backgroundColor: 'white',
+        left: 22,
+        top: 8,
+        zIndex: 999,
+        paddingHorizontal: 8,
+        fontSize: 14,
     },
     placeholderStyle: {
-      fontSize: 16,
+        fontSize: 16,
     },
     selectedTextStyle: {
-      fontSize: 16,
+        fontSize: 16,
     },
     iconStyle: {
-      width: 20,
-      height: 20,
+        width: 20,
+        height: 20,
     },
     inputSearchStyle: {
-      height: 40,
-      fontSize: 16,
+        height: 40,
+        fontSize: 16,
     },
     image: {
         width: '100%',
