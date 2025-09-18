@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Button, Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { useDeckBuilder } from '../../context/DeckBuilderContext';
-import { Card } from '../../db/cards';
+import { Card, fetchCardsFromAPI } from '../../db/cards';
 
 
 
@@ -33,57 +33,27 @@ const elixirs = [
     { label: '10', value: 10 },
 ];
 
-
-
-
-
-
 const CardsScreen = () => {
-
-    // Enter your own api key inside of this apikey variable
-
-    const apiKey = process.env.EXPO_PUBLIC_CLASH_ROYALE_API_KEY;
-
-
-    // Url used to fetch all the cards in the api request
-    const url = "https://api.clashroyale.com/v1/cards";
-
-    // requestOptions is used in order to enter api key in the format that the clash royale api is expecting
-    const requestOptions = {
-        method: 'GET',
-        headers: {
-            'Authorization': `Bearer ${apiKey}`,
-            'Content-Type': 'application/json'
-        }
-    };
-
-
-
     // Intialized An array of type Card to the apis response
     const [data, setData] = useState<Card[]>([]);
 
     useEffect(() => {
-
         // Function to fetch the apis response
-        const fetchCardData = async () => {
-            const response = await fetch(url, requestOptions);
-            const result = await response.json();
-            console.log(result)
-            setData(result.items || []);
-        }
-        fetchCardData();
-    }, [])
+        const loadCards = async () => {
+            try {
+                const cards = await fetchCardsFromAPI();
+                setData(cards);
+            } catch (error) {
+                console.error("Failed to fetch cards:", error);
+            }
+        };
+        loadCards();
+    }, []);
 
     // Used for debugging
     useEffect(() => {
         console.log("Updated data:", data);
     }, [data]);
-
-
-
-
-
-
 
     const [rarityFilter, setRarityFilter] = useState<string | null>(null);
     const [elixirFilter, setElixirFilter] = useState<number | null>(null);
@@ -94,29 +64,7 @@ const CardsScreen = () => {
         return rarityMatch && elixirMatch;
     });
 
-
     const { activeDeck, addCard } = useDeckBuilder();
-
-    const renderItem = ({ item }: { item: Card }) => {
-        const isCardInDeck = activeDeck?.cards.some(c => c.id === item.id);
-        const isDeckFull = activeDeck ? activeDeck.cards.length >= 8 : false;
-
-        return (
-            <View>
-                {/* ... your existing card display component ... */}
-                <Text>{item.name}</Text>
-
-                {/* Only show Add button if a deck is being built */}
-                {activeDeck && (
-                    <Button
-                        title={isCardInDeck ? "Added" : "Add"}
-                        onPress={() => addCard(item)}
-                        disabled={isCardInDeck || isDeckFull}
-                    />
-                )}
-            </View>
-        );
-    };
 
     return (
         <View style={styles.container}>
@@ -181,43 +129,35 @@ const CardsScreen = () => {
 
             {/* Show either all or filtered cards */}
             <ScrollView>
-                {displayedCards.map(card => (
-                    <View key={card.id} style={{ marginBottom: 8 }}>
-                        <Text>Name: {card.name}</Text>
-                        <Text>Elixir Cost: {card.elixirCost}</Text>
-                        <Text>Rarity: {card.rarity}</Text>
-                        <Text>Max Level: {card.maxLevel}</Text>
-                        <Text>Max Evolution Level: {card.maxEvolutionLevel}</Text>
-                        {card.iconUrls?.medium && (
-                            <Image
-                                source={{ uri: card.iconUrls.medium }}
-                                style={{ width: 80, height: 80, marginVertical: 8 }}
-                            />
-                        )}
-                    </View>
-                ))}
-            </ScrollView>
-            {/*
-            <ScrollView>    
-                {data.map((card) => (
-                <View key={card.id} style={{ marginBottom: 8 }}>
-                    <Text>Name: {card.name}</Text>
-                    <Text>Elixir Cost: {card.elixirCost}</Text>
-                    <Text>Rarity: {card.rarity}</Text>
-                    <Text>Max Level: {card.maxLevel}</Text>
-                    <Text>Max Evolution Level: {card.maxEvolutionLevel}</Text>
-                    {card.iconUrls?.medium && (
-                    <Image 
-                        source={{ uri: card.iconUrls.medium }}
-                        style={{ width: 80, height: 80, marginVertical: 8 }}
-                    />
-                    )}
-                </View>
-                ))
-            }
-            </ScrollView>
-            */}
+                {displayedCards.map(card => {
+                    const isCardInDeck = activeDeck?.cards.some(c => c.id === card.id);
+                    const isDeckFull = activeDeck ? activeDeck.cards.length >= 8 : false;
 
+                    return (
+                        <View key={card.id} style={{ marginBottom: 8 }}>
+                            <Text>Name: {card.name}</Text>
+                            <Text>Elixir Cost: {card.elixirCost}</Text>
+                            <Text>Rarity: {card.rarity}</Text>
+                            <Text>Max Level: {card.maxLevel}</Text>
+                            <Text>Max Evolution Level: {card.maxEvolutionLevel}</Text>
+                            {card.iconUrls?.medium && (
+                                <Image
+                                    source={{ uri: card.iconUrls.medium }}
+                                    style={{ width: 80, height: 80, marginVertical: 8 }}
+                                />
+                            )}
+                            {/* Only show Add button if a deck is being built */}
+                            {activeDeck && (
+                                <Button
+                                    title={isCardInDeck ? "Added" : "Add"}
+                                    onPress={() => addCard(card)}
+                                    disabled={isCardInDeck || isDeckFull}
+                                />
+                            )}
+                        </View>
+                    );
+                })}
+            </ScrollView>
         </View>
     )
 }

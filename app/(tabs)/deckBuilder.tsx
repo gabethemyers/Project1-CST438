@@ -37,6 +37,7 @@ export default function DeckBuilderScreen() {
             <View style={styles.container}>
                 <Text style={styles.title}>Building: {activeDeck.name}</Text>
                 <FlatList
+                    key="active-deck-list" // Add a unique key
                     data={activeDeck.cards}
                     keyExtractor={(item) => item.id.toString()}
                     numColumns={4}
@@ -60,6 +61,7 @@ export default function DeckBuilderScreen() {
         <View style={styles.container}>
             <Text style={styles.title}>My Decks</Text>
             <FlatList
+                key="user-decks-list" // Add a different unique key
                 data={userDecks}
                 keyExtractor={(item) => item.deck_id.toString()}
                 renderItem={({ item }) => (
