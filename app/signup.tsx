@@ -22,7 +22,7 @@ export default function SignupScreen() {
       const id = await createUser(u, password); // hashes & inserts
       Alert.alert("Success", `Account created (id ${id}).`);
       // TODO (optional): persist session in AsyncStorage here
-      router.replace("/(tabs)/landingPage");
+      router.replace("/landingPage");
     } catch (e: any) {
       const msg = String(e?.message || e);
       if (msg.toLowerCase().includes("unique") || msg.toLowerCase().includes("taken")) {
