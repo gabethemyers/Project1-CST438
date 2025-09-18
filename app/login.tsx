@@ -24,7 +24,7 @@ export default function LoginScreen() {
         return;
       }
       // TODO (optional): persist session in AsyncStorage here
-      router.replace("/(tabs)/landingPage");
+      router.replace("/landingPage");
     } catch (e: any) {
       Alert.alert("Login error", String(e?.message || e));
     } finally {
