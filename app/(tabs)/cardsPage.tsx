@@ -1,7 +1,7 @@
-import { View, Text, StyleSheet, TextInput, Button, Image, ScrollView } from 'react-native';
-import React, {useEffect, useState} from 'react';
-import { Dropdown } from 'react-native-element-dropdown';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import React, { useEffect, useState } from 'react';
+import { Button, Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Dropdown } from 'react-native-element-dropdown';
 
 
 
