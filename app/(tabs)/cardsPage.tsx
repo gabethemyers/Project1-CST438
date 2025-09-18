@@ -5,6 +5,7 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 
 
 
+
 // This interface is created in order to store the api's response inside of an array of type Card
 export interface Card{
     name: string;
@@ -49,7 +50,9 @@ const elixirs = [
 const CardsScreen = () => {
 
     // Enter your own api key inside of this apikey variable
+
     const apiKey = "Enter Api Key Here";
+
     
     // Url used to fetch all the cards in the api request
     const url = "https://api.clashroyale.com/v1/cards";

@@ -6,6 +6,7 @@ export default function TabsLayout() {
       <Tabs.Screen name="landingPage" options={{ headerTitle: 'Home' }} />
       <Tabs.Screen name="cardsPage" options={{ headerTitle: 'Cards' }} />
       <Tabs.Screen name="index" options={{ href: null }} />
+      <Tabs.Screen name="topPlayers" options={{ headerTitle: 'Top Players' }} />
     </Tabs>
   );
 }
