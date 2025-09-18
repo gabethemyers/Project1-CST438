@@ -1,7 +1,7 @@
-import React from 'react';
-import { Image, StyleSheet, Text, View, Pressable, ScrollView } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+import React from 'react';
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function LandingPage() {
   const goToArena = (arenaKey: string) => {
@@ -16,7 +16,7 @@ export default function LandingPage() {
       <ScrollView>
         <View style={styles.container}>
           <Image
-            source={require('../assets/images/clash-royal.png')}
+            source={require('../../assets/images/clash-royal.png')}
             style={{ width: '100%', height: 200 }}
           />
         </View>

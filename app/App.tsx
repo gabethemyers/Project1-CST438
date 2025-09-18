@@ -4,8 +4,8 @@ import React from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import type { RootStackParamList } from '../types/navigation';
+import LandingPage from './(tabs)/landingPage';
 import ArenaDecks from './ArenaDecks';
-import LandingPage from './landingPage';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
