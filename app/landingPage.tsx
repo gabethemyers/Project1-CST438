@@ -1,96 +1,75 @@
 import React from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { Image, StyleSheet, Text, View, Pressable, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { router } from 'expo-router';
 
-const TextInputExample = () => {
-  // const [arenaLvl, onChangeText] = React.useState('');
-  // const [specificMods, onChangeNumber] = React.useState('');
+export default function LandingPage() {
+  const goToArena = (arenaKey: string) => {
+    router.push({
+      pathname: '/ArenaDecks',
+      params: { arena: arenaKey },
+    });
+  };
 
   return (
-    <SafeAreaProvider>
-      <SafeAreaView>
-
+    <SafeAreaView style={{ flex: 1 }}>
+      <ScrollView>
         <View style={styles.container}>
-
           <Image
-              source={require('../assets/images/swordLogo.png')}
-              style={{width: 100, height: 100}}
-            
-            />
-
-          <Image
-              source={require('../assets/images/swordLogo.png')}
-              style={{width: 100, height: 100}}
-            
-            />
-
-            <Image
-              source={require('../assets/images/swordLogo.png')}
-              style={{width: 100, height: 100}}
-            
-            />
-
-            <Image
-              source={require('../assets/images/swordLogo.png')}
-              style={{width: 100, height: 100}}
-            
-            />
-
-          
+            source={require('../assets/images/clash-royal.png')}
+            style={{ width: '100%', height: 200 }}
+          />
         </View>
 
-        <View style={styles.arenaCon}>
-
-          <Text style={styles.arenaCap}>
-            Arena 1
-          </Text>
-
-          <Text style={styles.arenaCap}>
-            Arena 2
-          </Text>
-
-          <Text style={styles.arenaCap}>
-            Arena 3
-          </Text>
-
-          <Text style={styles.arenaCap}>
-            Arena 4
-          </Text>
-
-
+        <View style={styles.arenaCon}>        
+          {([
+            'arena1','arena2','arena3','arena4',
+            'arena5','arena6','arena7','arena8',
+            'arena9','arena10','arena11','arena12',
+             'arena13','arena14','arena15','arena16',
+             'arena17', 'arena18'
+          ] as const).map((key) => (
+            <Pressable 
+              key={key}
+              onPress={() => goToArena(key)}
+              hitSlop={10}
+              style={({ pressed }) => [
+                styles.arenaCard,
+                { opacity: pressed ? 0.6 : 1 },
+              ]}
+            >
+              <Text style={styles.arenaCap}>{key.replace('arena', 'Arena ')}</Text>
+            </Pressable>
+          ))}
         </View>
-
-
-        
-        {/* <TextInput
-          style={styles.input}
-          onChangeText={onChangeText}
-          value={arenaLvl}
-          placeholder="Enter Arena Level"
-          keyboardType="numeric"
-        /> */}
-
-      </SafeAreaView>
-    </SafeAreaProvider>
+      </ScrollView>
+    </SafeAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  arenaCap: {
-
-    color: 'black',
-  },
   arenaCon: {
     flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    flex: 1,
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    padding: 12,
   },
-  container: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    flex: 1,
-    padding: 10,
+  arenaCard: {
+    width: '45%',
+    marginBottom: 16,
+    alignItems: 'center',
+    paddingVertical: 12,
+    backgroundColor: '#f2f2f2',
+    borderRadius: 8,
+  },
+  arenaCap: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#111',
+  },
+  container: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-around', 
+    padding: 10 
   },
 });
-
-export default TextInputExample;
