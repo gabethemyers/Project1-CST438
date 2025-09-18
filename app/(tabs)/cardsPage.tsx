@@ -51,7 +51,7 @@ const CardsScreen = () => {
 
     // Enter your own api key inside of this apikey variable
 
-    const apiKey = "Enter Api Key Here";
+    const apiKey =process.env.EXPO_PUBLIC_CLASH_ROYALE_API_KEY ;
 
     
     // Url used to fetch all the cards in the api request
