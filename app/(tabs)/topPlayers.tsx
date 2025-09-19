@@ -8,7 +8,7 @@ type Player = { tag: string; name: string; rank: number; trophies: number; clan?
 type Season = { id: string; startTime?: string; endTime?: string; isActive?: boolean };
 
 
-const apiKey = "Enter api key here";
+const apiKey = process.env.EXPO_PUBLIC_CLASH_ROYALE_API_KEY;
 
 export default function TopPlayersScreen() {
   const H = useMemo(

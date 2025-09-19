@@ -111,18 +111,31 @@ describe('Deck Service', () => {
         it('should return a deck with its associated cards', async () => {
             const mockDeckId = 5;
             const mockDeck: deckService.Deck = { deck_id: mockDeckId, user_id: 1, name: 'My Deck' };
-            const mockCards: Card[] = [{ id: 101, name: 'Card 1' } as Card, { id: 102, name: 'Card 2' } as Card];
+            // Mock the raw data returned from the DB
+            const mockRawCards = [
+                { id: 101, name: 'Card 1', icon_url_medium: 'url1' /* ...other snake_case fields */ },
+                { id: 102, name: 'Card 2', icon_url_medium: 'url2' /* ...other snake_case fields */ },
+            ];
+            // Mock the final, mapped card data
+            const mockMappedCards: Card[] = [
+                { id: 101, name: 'Card 1', iconUrls: { medium: 'url1' } } as Card,
+                { id: 102, name: 'Card 2', iconUrls: { medium: 'url2' } } as Card,
+            ];
 
             mockDb.getFirstAsync.mockResolvedValue(mockDeck);
-            mockDb.getAllAsync.mockResolvedValue(mockCards);
+            mockDb.getAllAsync.mockResolvedValue(mockRawCards);
 
             const result = await deckService.getDeckWithCards(mockDeckId);
 
             expect(mockDb.getFirstAsync).toHaveBeenCalledWith('SELECT * FROM decks WHERE deck_id = ?', [mockDeckId]);
-            expect(mockDb.getAllAsync).toHaveBeenCalledWith(expect.stringContaining('SELECT c.* FROM cards c'), [mockDeckId]);
+            // Update the expectation to match the new, more specific query
+            expect(mockDb.getAllAsync).toHaveBeenCalledWith(
+                expect.stringContaining('SELECT \n            c.card_id AS id'),
+                [mockDeckId]
+            );
             expect(result).toEqual({
                 ...mockDeck,
-                cards: mockCards,
+                cards: mockMappedCards,
             });
         });
 

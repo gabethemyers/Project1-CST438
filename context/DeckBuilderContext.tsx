@@ -12,6 +12,7 @@ interface DeckBuilderContextType {
     startBuildingDeck: (deck: DeckWithCards) => void;
     addCard: (card: Card) => void;
     removeCard: (cardId: number) => void;
+    updateActiveDeckName: (name: string) => void; // Add this function
     saveDeck: () => Promise<void>;
     clearActiveDeck: () => void;
 }
@@ -43,17 +44,28 @@ export const DeckBuilderProvider = ({ children }: { children: ReactNode }) => {
         });
     };
 
-    const saveDeck = async () => {
-        if (!activeDeck) return;
-        // This is a simplified save logic.
-        // You would first clear all cards for the deck, then add the new ones.
-        await deckService.deleteDeck(activeDeck.deck_id); // You might want a 'clearDeck' function instead
-        await deckService.createDeck(activeDeck.user_id, activeDeck.name); // This is simplified
+    const updateActiveDeckName = (name: string) => {
+        setActiveDeck(prev => {
+            if (!prev) return null;
+            return { ...prev, name: name };
+        });
+    };
 
-        // A more robust solution would be to calculate the difference and
-        // only add/remove the cards that changed.
-        for (const card of activeDeck.cards) {
-            await deckService.addCardToDeck(activeDeck.deck_id, card.id);
+    const saveDeck = async () => {
+        if (!activeDeck) {
+            console.log("SaveDeck: No active deck to save.");
+            return;
+        }
+        console.log(`SaveDeck: Saving deck ${activeDeck.deck_id} with ${activeDeck.cards.length} cards.`);
+        try {
+            // Save both the name and the cards in parallel
+            await Promise.all([
+                deckService.updateDeckName(activeDeck.deck_id, activeDeck.name),
+                deckService.updateDeckCards(activeDeck.deck_id, activeDeck.cards)
+            ]);
+            console.log(`SaveDeck: Successfully saved deck ${activeDeck.deck_id}.`);
+        } catch (error) {
+            console.error(`SaveDeck: Failed to save deck ${activeDeck.deck_id}.`, error);
         }
     };
 
@@ -62,7 +74,7 @@ export const DeckBuilderProvider = ({ children }: { children: ReactNode }) => {
     };
 
     return (
-        <DeckBuilderContext.Provider value={{ activeDeck, startBuildingDeck, addCard, removeCard, saveDeck, clearActiveDeck }}>
+        <DeckBuilderContext.Provider value={{ activeDeck, startBuildingDeck, addCard, removeCard, updateActiveDeckName, saveDeck, clearActiveDeck }}>
             {children}
         </DeckBuilderContext.Provider>
     );
