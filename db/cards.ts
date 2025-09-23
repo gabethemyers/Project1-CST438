@@ -52,3 +52,13 @@ export const cacheCards = async () => {
 
     await Promise.all(insertPromises);
 }
+
+/**
+ * Gets the total number of cards in the database.
+ * @returns The number of cards.
+ */
+export const getCardCount = async (): Promise<number> => {
+    const db = await getDBConnection();
+    const result = await db.getFirstAsync<{ count: number }>('SELECT COUNT(*) as count FROM cards');
+    return result?.count ?? 0;
+};
