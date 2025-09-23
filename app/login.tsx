@@ -1,6 +1,7 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { Link, useRouter } from "expo-router";
 import React from "react";
+
 import {
   ActivityIndicator,
   Alert,
@@ -14,11 +15,16 @@ import {
 } from "react-native";
 import { verifyUser } from "../db/auth";
 
+import { Alert, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { useAuth } from '../context/AuthContext';
+
+
 export default function LoginScreen() {
   const router = useRouter();
   const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [loading, setLoading] = React.useState(false);
+  const { login } = useAuth();
 
   const canSubmit = username.trim().length > 0 && password.length > 0;
 
@@ -29,6 +35,7 @@ export default function LoginScreen() {
     }
     setLoading(true);
     try {
+
       const user = await verifyUser(username.trim(), password);
       if (!user) {
         Alert.alert("Invalid credentials", "Username or password is incorrect.");
@@ -37,6 +44,13 @@ export default function LoginScreen() {
       router.replace("/landingPage"); 
     } catch (e: any) {
       Alert.alert("Login error", String(e?.message || e));
+
+      await login(username, password);
+      // On successful login, navigate to the main app
+      router.replace('/(tabs)/landingPage');
+    } catch (error) {
+      Alert.alert("Login Failed", "Please check your username and password.");
+
     } finally {
       setLoading(false);
     }

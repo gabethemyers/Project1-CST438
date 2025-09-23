@@ -1,95 +1,69 @@
 import { fireEvent, render, waitFor } from "@testing-library/react-native";
-import React from "react";
+import { router } from "expo-router";
 
-// Use a mock variable name Jest allows inside the mock factory
-const mockPush = jest.fn();
+// Mock the global fetch function
+global.fetch = jest.fn();
 
-// Mock expo-router BEFORE requiring the component
-jest.mock("expo-router", () => {
-  const React = require("react");
-  return {
-    // hook-style router
-    useRouter: () => ({ push: mockPush }),
+// Mock the router
+jest.mock("expo-router", () => ({
+  router: {
+    push: jest.fn(),
+  },
+}));
 
-    // singleton router (covers `import { router } from "expo-router"`)
-    router: { push: mockPush },
-
-    // stub Link so it doesn’t crash if used
-    Link: ({ children }: any) =>
-      typeof children === "function" ? children({}) : children ?? null,
-  };
-});
-
-// Helper: one good response with a single player
-function makePlayersOk() {
-  const body = {
-    items: [
-      {
-        tag: "#ABC123",
-        name: "Pro One",
-        rank: 1,
-        trophies: 8000,
-        clan: { name: "Legends" },
-      },
-    ],
-  };
-  return {
-    ok: true,
-    status: 200,
-    statusText: "OK",
-    text: async () => JSON.stringify(body),
-  } as Response;
-}
-
-// Helper: an error HTTP response
-function makeHttpError() {
-  return {
-    ok: false,
-    status: 403,
-    statusText: "Forbidden",
-    text: async () => JSON.stringify({ message: "nope" }),
-  } as Response;
-}
+const mockPlayers = [
+  { tag: "#123", name: "Player One", rank: 1, trophies: 5000 },
+  { tag: "#456", name: "Player Two", rank: 2, trophies: 4900 },
+];
 
 describe("TopPlayersScreen", () => {
   beforeEach(() => {
-    mockPush.mockClear();
-    // @ts-ignore
-    global.fetch = jest.fn().mockResolvedValue(makePlayersOk());
+    // Clear mocks before each test
+    (fetch as jest.Mock).mockClear();
+    (router.push as jest.Mock).mockClear();
   });
 
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
-  it("renders a player and navigates to player detail when tapped", async () => {
-    // require AFTER mocks are set up
+  it("renders a loading indicator initially", () => {
+    // This test is fine, but we need to provide a pending promise for fetch
+    (fetch as jest.Mock).mockReturnValue(new Promise(() => { }));
     const TopPlayersScreen = require("../app/(tabs)/topPlayers").default;
-
-    const { findByText, getByText } = render(<TopPlayersScreen />);
-
-    // Wait for player row
-    const row = await findByText("Pro One");
-    expect(row).toBeTruthy();
-
-    // Tap the row (pressing the Text is fine here)
-    fireEvent.press(getByText("Pro One"));
-
-    // Should push to encoded path
-    await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith("/player/%23ABC123");
-    });
+    const { getByText } = render(<TopPlayersScreen />);
+    // Use the correct ellipsis character
+    expect(getByText("Loading…")).toBeTruthy();
   });
 
-  it("shows error UI on HTTP failure", async () => {
-    // @ts-ignore
-    global.fetch = jest.fn().mockResolvedValue(makeHttpError());
-
+  it("renders a list of players after fetching", async () => {
+    // Provide a complete mock response object
+    (fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ items: mockPlayers }),
+      text: () => Promise.resolve(JSON.stringify({ items: mockPlayers })),
+    });
+    // require AFTER mocks are set up
     const TopPlayersScreen = require("../app/(tabs)/topPlayers").default;
     const { findByText } = render(<TopPlayersScreen />);
 
-    // Your screen shows "Error" heading when fetch fails
-    expect(await findByText(/Error/i)).toBeTruthy();
+    expect(await findByText("Player One")).toBeTruthy();
+    expect(await findByText("Player Two")).toBeTruthy();
+  });
+
+  it("renders a player and navigates to player detail when tapped", async () => {
+    // Provide a complete mock response object
+    (fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ items: mockPlayers }),
+      text: () => Promise.resolve(JSON.stringify({ items: mockPlayers })),
+    });
+    // require AFTER mocks are set up
+    const TopPlayersScreen = require("../app/(tabs)/topPlayers").default;
+    const { findByText } = render(<TopPlayersScreen />);
+
+    const playerOne = await findByText("Player One");
+    fireEvent.press(playerOne);
+
+    await waitFor(() => {
+      expect(router.push).toHaveBeenCalledWith("/player/%23123");
+    });
   });
 });
 

@@ -15,7 +15,12 @@ type Clan = { name?: string; tag?: string };
 type Player = { tag: string; name: string; rank: number; trophies: number; clan?: Clan };
 type Season = { id: string };
 
+
 const apiKey = process.env.EXPO_PUBLIC_CLASH_ROYAL_API_KEY;
+
+
+const apiKey = process.env.EXPO_PUBLIC_CLASH_ROYALE_API_KEY;
+
 
 export default function TopPlayersScreen() {
   const H = useMemo(
