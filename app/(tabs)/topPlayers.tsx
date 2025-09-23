@@ -1,14 +1,21 @@
 import { router, type Href } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from "react-native";
-import RNPickerSelect from "react-native-picker-select";
+import {
+  ActivityIndicator,
+  FlatList,
+  Modal,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 type Clan = { name?: string; tag?: string };
 type Player = { tag: string; name: string; rank: number; trophies: number; clan?: Clan };
-type Season = { id: string; startTime?: string; endTime?: string; isActive?: boolean };
+type Season = { id: string };
 
-
-const apiKey = "Enter api key here";
+const apiKey = process.env.EXPO_PUBLIC_CLASH_ROYAL_API_KEY;
 
 export default function TopPlayersScreen() {
   const H = useMemo(
@@ -20,9 +27,10 @@ export default function TopPlayersScreen() {
     []
   );
 
-  // --- seasons picker (only working seasons) ---
+  // --- seasons picker state ---
   const [seasons, setSeasons] = useState<Season[]>([]);
   const [selectedSeason, setSelectedSeason] = useState<string>("2022-09"); // default to last reliable
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -33,15 +41,17 @@ export default function TopPlayersScreen() {
         const json = JSON.parse(txt);
         const items: Season[] = Array.isArray(json?.items) ? json.items : [];
 
-        // keep only seasons <= 2022-09 (API newer ones broken)
-        const allowed = items
-          .map(s => s.id)
-          .filter((id: string) => typeof id === "string" && id <= "2022-09")
-          .sort(); // ascending
+        // Collect ids, filter valid, dedupe, and sort
+        const ids = items
+          .map((s) => String(s.id))
+          .filter((id) => /^\d{4}-\d{2}$/.test(id) && id <= "2022-09");
+        const uniqueIds = Array.from(new Set(ids)).sort();
 
-        setSeasons(allowed.map(id => ({ id } as Season)));
-        if (!allowed.includes(selectedSeason)) setSelectedSeason(allowed.at(-1) ?? "2022-09");
-      } catch (_) {
+        setSeasons(uniqueIds.map((id) => ({ id })));
+        if (!uniqueIds.includes(selectedSeason)) {
+          setSelectedSeason(uniqueIds.at(-1) ?? "2022-09");
+        }
+      } catch {
         setSeasons([{ id: "2022-09" }]);
       }
     })();
@@ -80,32 +90,77 @@ export default function TopPlayersScreen() {
     };
   }, [H, selectedSeason]);
 
-  // --- tap handler: navigate with a simple string path ---
+  // --- tap handler for player ---
   function goToPlayer(rawTag: string) {
-  const tag = rawTag.startsWith("#") ? rawTag : `#${rawTag}`;
-  const href = `/player/${encodeURIComponent(tag)}`;
-  router.push(href as Href);
-}
+    const tag = rawTag.startsWith("#") ? rawTag : `#${rawTag}`;
+    const href = `/player/${encodeURIComponent(tag)}`;
+    router.push(href as Href);
+  }
+
+  // Ensure seasons are unique
+  const uniqueSeasons = React.useMemo(
+    () => Array.from(new Map(seasons.map((s) => [s.id, s])).values()),
+    [seasons]
+  );
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Top Players</Text>
 
+      {/* Season selector field */}
       <View style={styles.pickerRow}>
         <Text style={styles.pickerLabel}>Season:</Text>
-        <RNPickerSelect
-          onValueChange={(v) => v && setSelectedSeason(v)}
-          value={selectedSeason}
-          items={seasons.map((s) => ({ label: s.id, value: s.id }))}
-          useNativeAndroidPickerStyle={false}
-          style={{
-            inputIOS: styles.pickerInput,
-            inputAndroid: styles.pickerInput,
-            iconContainer: { right: 10, top: 10 },
-          }}
-          placeholder={{}}
-        />
+        <Pressable
+          onPress={() => setPickerOpen(true)}
+          style={({ pressed }) => [
+            styles.pickerField,
+            pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] },
+          ]}
+        >
+          <Text style={styles.pickerValue}>{selectedSeason}</Text>
+          <Text style={styles.pickerChevron}>▾</Text>
+        </Pressable>
       </View>
+
+      {/* Bottom sheet modal for seasons */}
+      <Modal visible={pickerOpen} transparent animationType="fade" onRequestClose={() => setPickerOpen(false)}>
+        <Pressable style={styles.backdrop} onPress={() => setPickerOpen(false)} />
+        <View style={styles.sheet}>
+          <View style={styles.sheetHeader}>
+            <Text style={styles.sheetTitle}>Select Season</Text>
+            <Pressable onPress={() => setPickerOpen(false)} hitSlop={10}>
+              <Text style={styles.sheetClose}>Close</Text>
+            </Pressable>
+          </View>
+
+          <FlatList
+            data={[...uniqueSeasons].reverse()} // show newest first
+            keyExtractor={(s) => s.id}
+            ItemSeparatorComponent={() => <View style={styles.sep} />}
+            renderItem={({ item }) => {
+              const active = item.id === selectedSeason;
+              return (
+                <Pressable
+                  onPress={() => {
+                    setSelectedSeason(item.id);
+                    setPickerOpen(false);
+                  }}
+                  style={[
+                    styles.optionRow,
+                    active && styles.optionActive,
+                  ]}
+                >
+                  <Text style={[styles.optionText, active && styles.optionTextActive]}>
+                    {item.id}
+                  </Text>
+                  {active ? <Text style={styles.check}>✓</Text> : null}
+                </Pressable>
+              );
+            }}
+            contentContainerStyle={{ paddingBottom: 8 }}
+            style={{ maxHeight: 360 }}
+          />
+        </View>
+      </Modal>
 
       {loading ? (
         <View style={styles.center}>
@@ -155,24 +210,70 @@ const styles = StyleSheet.create({
   dim: { color: "#6B7280", marginTop: 8 },
   error: { color: "#DC2626", fontWeight: "700", marginTop: 8 },
 
+  // picker field
   pickerRow: {
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingVertical: 8,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: "#e5e7eb",
     backgroundColor: "#fff",
   },
   pickerLabel: { fontWeight: "600", marginRight: 8 },
-  pickerInput: {
-    fontSize: 16,
-    paddingVertical: 8,
-    paddingHorizontal: 10,
+  pickerField: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: Platform.select({ ios: 10, android: 8 }),
+    paddingHorizontal: 12,
     backgroundColor: "#F3F4F6",
     borderRadius: 10,
   },
+  pickerValue: { fontSize: 16, fontWeight: "600" },
+  pickerChevron: { marginLeft: 8, fontSize: 14, color: "#6B7280" },
 
+  // sheet
+  backdrop: { flex: 1, backgroundColor: "rgba(0,0,0,0.35)" },
+  sheet: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    backgroundColor: "#fff",
+    paddingBottom: 12,
+    paddingHorizontal: 12,
+    paddingTop: 8,
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 12,
+  },
+  sheetHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 8,
+  },
+  sheetTitle: { fontSize: 16, fontWeight: "700" },
+  sheetClose: { color: "#2563EB", fontWeight: "600" },
+  sep: { height: StyleSheet.hairlineWidth, backgroundColor: "#E5E7EB" },
+
+  optionRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderRadius: 10,
+  },
+  optionActive: { backgroundColor: "#EEF2FF" },
+  optionText: { fontSize: 16 },
+  optionTextActive: { fontWeight: "700", color: "#1D4ED8" },
+  check: { color: "#1D4ED8", fontSize: 16, fontWeight: "700" },
+
+  // list rows
   row: {
     flexDirection: "row",
     alignItems: "center",
