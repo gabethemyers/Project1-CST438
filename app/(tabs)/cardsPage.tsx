@@ -42,14 +42,14 @@ const elixirs = [
 ];
 
     
-
+//const apiKey = process.env.EXPO_PUBLIC_CLASH_ROYALE_API_KEY;
 
 
 
 const CardsScreen = () => {
-
+    const API_KEY = process.env.EXPO_PUBLIC_CLASH_ROYAL_API_KEY;
     // Enter your own api key inside of this apikey variable
-    const apiKey = "Enter Api Key Here";
+    //const apiKey = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiIsImtpZCI6IjI4YTMxOGY3LTAwMDAtYTFlYi03ZmExLTJjNzQzM2M2Y2NhNSJ9.eyJpc3MiOiJzdXBlcmNlbGwiLCJhdWQiOiJzdXBlcmNlbGw6Z2FtZWFwaSIsImp0aSI6IjgzZjRlZjM1LWM1MDQtNDcxNC05MTJlLWFlNTllNDkwNzNhNCIsImlhdCI6MTc1NjgzMTkwMywic3ViIjoiZGV2ZWxvcGVyL2JkNDUyNjQ5LWQ0NmYtYzc2Zi02NzAwLWJmMTAzZDM3MzFkNyIsInNjb3BlcyI6WyJyb3lhbGUiXSwibGltaXRzIjpbeyJ0aWVyIjoiZGV2ZWxvcGVyL3NpbHZlciIsInR5cGUiOiJ0aHJvdHRsaW5nIn0seyJjaWRycyI6WyIxOTguMTg5LjI0OS42NSJdLCJ0eXBlIjoiY2xpZW50In1dfQ.gfHEWIFsiFAXgrsmvV7zSI3GnyWir3tlrAUpRMoS6wiT8Vwhk8IrZVlUhRnnyHvtJlWeZJYOSKM-KiJ5DAhdiQ";
     
     // Url used to fetch all the cards in the api request
     const url = "https://api.clashroyale.com/v1/cards";
@@ -58,7 +58,7 @@ const CardsScreen = () => {
     const requestOptions = {
         method: 'GET',
         headers: {
-            'Authorization': `Bearer ${apiKey}`, 
+            'Authorization': `Bearer ${API_KEY}`, 
             'Content-Type': 'application/json'
         }
     };
