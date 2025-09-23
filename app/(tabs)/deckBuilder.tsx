@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Button, FlatList, Image, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Button, FlatList, StyleSheet, Text, TextInput, View } from 'react-native';
 import { CardItem } from '../../components/CardItem';
 import { useAuth } from '../../context/AuthContext';
 import { useDeckBuilder } from '../../context/DeckBuilderContext';
@@ -123,7 +123,10 @@ export default function DeckBuilderScreen() {
                 renderItem={({ item }) => (
                     <View style={styles.deckContainer}>
                         <View style={styles.deckHeader}>
-                            <Text style={styles.deckName}>{item.name}</Text>
+                            <View>
+                                <Text style={styles.deckName}>{item.name}</Text>
+                                <Text style={styles.elixirText}>Average Elixir: {calculateAverageElixir(item.cards)}</Text>
+                            </View>
                             <View style={styles.buttonGroup}>
                                 <Button title="Edit" onPress={() => handleSelectDeck(item)} />
                                 <Button title="Delete" color="red" onPress={() => handleDeleteDeck(item)} />
@@ -132,13 +135,10 @@ export default function DeckBuilderScreen() {
                         <FlatList
                             data={item.cards}
                             keyExtractor={(card) => card.id.toString()}
-                            numColumns={4} // Arrange items in 4 columns
-                            scrollEnabled={false} // Disable scrolling for this nested list
+                            numColumns={4}
+                            scrollEnabled={false}
                             renderItem={({ item: card }) => (
-                                <View style={styles.gridCardItem}>
-                                    <Image source={{ uri: card.iconUrls?.medium }} style={styles.gridCardImage} />
-                                    <Text style={styles.gridCardName} numberOfLines={1}>{card.name}</Text>
-                                </View>
+                                <CardItem card={card} size="small" />
                             )}
                             ListEmptyComponent={<Text style={styles.emptyDeckText}>This deck is empty.</Text>}
                         />
@@ -150,6 +150,12 @@ export default function DeckBuilderScreen() {
         </View>
     );
 }
+
+const calculateAverageElixir = (cards: Card[]): number => {
+    if (cards.length === 0) return 0;
+    const totalElixir = cards.reduce((sum, card) => sum + card.elixirCost, 0);
+    return Number((totalElixir / cards.length).toFixed(1));
+};
 
 const styles = StyleSheet.create({
     container: { flex: 1, padding: 10, backgroundColor: '#fff' },
@@ -183,6 +189,7 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     deckName: { fontSize: 18, fontWeight: 'bold' },
+    elixirText: { fontSize: 14, color: '#555' },
     buttonGroup: { flexDirection: 'row', gap: 10 },
     // REMOVED smallCardImage style and added new grid styles
     gridCardItem: {
