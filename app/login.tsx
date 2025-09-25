@@ -1,16 +1,28 @@
+import { LinearGradient } from "expo-linear-gradient";
 import { Link, useRouter } from "expo-router";
 import React from "react";
-import { Alert, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
-import { useAuth } from '../context/AuthContext';
+import {
+  ActivityIndicator,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
+import { useAuth } from "../context/AuthContext";
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { login } = useAuth();
+
   const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [loading, setLoading] = React.useState(false);
-  const { login } = useAuth();
 
-  const canSubmit = username.trim().length > 0 && password.length > 0;
+  const canSubmit = username.trim().length > 0 && password.length > 0 && !loading;
 
   const handleLogin = async () => {
     if (!canSubmit) {
@@ -19,10 +31,9 @@ export default function LoginScreen() {
     }
     setLoading(true);
     try {
-      await login(username, password);
-      // On successful login, navigate to the main app
-      router.replace('/(tabs)/landingPage');
-    } catch (error) {
+      await login(username.trim(), password); // <-- use AuthContext (works with Deck Builder)
+      router.replace("/(tabs)/landingPage");
+    } catch {
       Alert.alert("Login Failed", "Please check your username and password.");
     } finally {
       setLoading(false);
@@ -30,61 +41,147 @@ export default function LoginScreen() {
   };
 
   return (
-    <KeyboardAvoidingView behavior={Platform.select({ ios: "padding", android: undefined })} style={{ flex: 1 }}>
-      <View style={styles.container}>
-        <Text style={styles.title}>Login</Text>
+    <LinearGradient
+      colors={["#0B1223", "#132558", "#1E3A8A"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={{ flex: 1 }}
+    >
+      <KeyboardAvoidingView
+        behavior={Platform.select({ ios: "padding", android: undefined })}
+        style={{ flex: 1 }}
+      >
+        <View style={styles.container}>
+          <Text style={styles.title}>Clash Royale</Text>
+          <Text style={styles.subtitle}>Deck Builder Login</Text>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Username"
-          autoCapitalize="none"
-          autoCorrect={false}
-          autoComplete="username"
-          textContentType="username"
-          value={username}
-          onChangeText={setUsername}
-          returnKeyType="next"
-        />
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Log In</Text>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          secureTextEntry
-          autoComplete="password"
-          textContentType="password"
-          value={password}
-          onChangeText={setPassword}
-          returnKeyType="done"
-          onSubmitEditing={() => {
-            if (canSubmit && !loading) handleLogin();
-          }}
-        />
+            <TextInput
+              style={styles.input}
+              placeholder="Username"
+              placeholderTextColor="#9CA3AF"
+              autoCapitalize="none"
+              autoCorrect={false}
+              autoComplete="username"
+              textContentType="username"
+              value={username}
+              onChangeText={setUsername}
+              returnKeyType="next"
+            />
 
-        <Pressable
-          style={[styles.button, (!canSubmit || loading) && styles.buttonDisabled]}
-          disabled={!canSubmit || loading}
-          onPress={handleLogin}
-        >
-          <Text style={styles.buttonText}>{loading ? "Logging in..." : "Log In"}</Text>
-        </Pressable>
+            <TextInput
+              style={styles.input}
+              placeholder="Password"
+              placeholderTextColor="#9CA3AF"
+              secureTextEntry
+              autoComplete="password"
+              textContentType="password"
+              value={password}
+              onChangeText={setPassword}
+              returnKeyType="done"
+              onSubmitEditing={() => canSubmit && handleLogin()}
+            />
 
-        <Link href="/signup" style={styles.link}>
-          Don’t have an account? Sign up.
-        </Link>
-      </View>
-    </KeyboardAvoidingView>
+            <Pressable
+              style={[styles.button, !canSubmit && styles.buttonDisabled]}
+              disabled={!canSubmit}
+              onPress={handleLogin}
+            >
+              {loading ? (
+                <ActivityIndicator color="#0B1222" />
+              ) : (
+                <Text style={styles.buttonText}>Enter the Arena</Text>
+              )}
+            </Pressable>
+
+            <Link href="/signup" style={styles.link}>
+              Don’t have an account? <Text style={styles.linkStrong}>Sign up</Text>
+            </Link>
+          </View>
+        </View>
+      </KeyboardAvoidingView>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", alignItems: "center", padding: 20, backgroundColor: "#f5f5f5" },
-  title: { fontSize: 24, marginBottom: 20 },
-  input: {
-    width: "100%", height: 44, borderColor: "#ccc", borderWidth: 1, borderRadius: 8,
-    marginBottom: 15, paddingHorizontal: 12, backgroundColor: "#fff",
+  container: {
+    flex: 1,
+    paddingHorizontal: 20,
+    justifyContent: "center",
+    alignItems: "center",
   },
-  button: { width: "100%", height: 44, backgroundColor: "#007AFF", justifyContent: "center", alignItems: "center", borderRadius: 8 },
-  buttonDisabled: { backgroundColor: "#a5c8ff" },
-  buttonText: { color: "#fff", fontSize: 16, fontWeight: "600" },
-  link: { textDecorationLine: "underline", color: "#007AFF", marginTop: 15 },
+  title: {
+    color: "#FACC15",
+    fontSize: 28,
+    fontWeight: "900",
+    letterSpacing: 1,
+    marginBottom: 4,
+    textAlign: "center",
+  },
+  subtitle: {
+    color: "#BFDBFE",
+    fontSize: 14,
+    fontWeight: "600",
+    marginBottom: 24,
+    textTransform: "uppercase",
+    textAlign: "center",
+  },
+  card: {
+    width: "100%",
+    backgroundColor: "#111827DD",
+    borderRadius: 16,
+    padding: 18,
+    gap: 12,
+    shadowColor: "#000",
+    shadowOpacity: 0.35,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 6,
+  },
+  cardTitle: {
+    color: "white",
+    fontSize: 20,
+    fontWeight: "700",
+    marginBottom: 8,
+    textAlign: "center",
+  },
+  input: {
+    width: "100%",
+    height: 48,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    backgroundColor: "#1F2937",
+    color: "white",
+    borderWidth: 1,
+    borderColor: "#374151",
+  },
+  button: {
+    height: 48,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#FACC15",
+    marginTop: 6,
+    shadowColor: "#FACC15",
+    shadowOpacity: 0.35,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 6,
+  },
+  buttonDisabled: { backgroundColor: "#A1A1AA" },
+  buttonText: {
+    color: "#0B1222",
+    fontWeight: "800",
+    fontSize: 16,
+    letterSpacing: 0.5,
+  },
+  link: {
+    marginTop: 12,
+    textAlign: "center",
+    color: "#9CA3AF",
+  },
+  linkStrong: { color: "#60A5FA", fontWeight: "700" },
 });
