@@ -7,6 +7,17 @@ export default function TabsLayout() {
     <DeckBuilderProvider>
       <Tabs>
         <Tabs.Screen
+          name="searchPlayer"
+          options={{
+            title: 'Search Player',
+            tabBarLabel: 'Search',
+            tabBarIcon: ({focused, color, size}) => {
+              const iconName = focused ? 'search' : 'search-outline';
+              return <Ionicons name={iconName} size={size} color={color} />;
+            }
+          }}
+        />
+        <Tabs.Screen
           name="topPlayers"
           options={{
             headerShown: false,
