@@ -20,9 +20,10 @@ export default function TabsLayout() {
         <Tabs.Screen
           name="topPlayers"
           options={{
+            headerShown: false,
             title: 'Leaderboard',
             tabBarLabel: 'Top Players',
-            tabBarIcon: ({focused, color, size}) => {
+            tabBarIcon: ({ focused, color, size }) => {
               const iconName = focused ? 'trophy' : 'trophy-outline';
               return <Ionicons name={iconName} size={size} color={color} />;
             }
@@ -31,9 +32,10 @@ export default function TabsLayout() {
         <Tabs.Screen
           name="landingPage"
           options={{
+            headerShown: false,
             title: 'Home Page',       // Header title
             tabBarLabel: 'Home',
-            tabBarIcon: ({focused, color, size}) => {
+            tabBarIcon: ({ focused, color, size }) => {
               const iconName = focused ? 'home' : 'home-outline';
               return <Ionicons name={iconName} size={size} color={color} />;
             }
@@ -42,9 +44,10 @@ export default function TabsLayout() {
         <Tabs.Screen
           name="cardsPage"
           options={{
+            headerShown: false,
             title: 'Card Collection',
             tabBarLabel: 'Cards',
-            tabBarIcon: ({focused, color, size}) => {
+            tabBarIcon: ({ focused, color, size }) => {
               const iconName = focused ? 'layers' : 'layers-outline';
               return <Ionicons name={iconName} size={size} color={color} />;
             }
@@ -54,9 +57,9 @@ export default function TabsLayout() {
         <Tabs.Screen
           name="deckBuilder"
           options={{
-            title: 'Deck Builder',
+            headerShown: false,
             tabBarLabel: 'My Decks',
-            tabBarIcon: ({focused, color, size}) => {
+            tabBarIcon: ({ focused, color, size }) => {
               const iconName = focused ? 'duplicate' : 'duplicate-outline';
               return <Ionicons name={iconName} size={size} color={color} />;
             }
