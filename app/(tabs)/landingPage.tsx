@@ -1,73 +1,102 @@
-import { router } from 'expo-router';
-import React from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+// app/(tabs)/landingPage.tsx
+import { router } from "expo-router";
+import React from "react";
+import {
+  Image,
+  ImageBackground,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function LandingPage() {
   const goToArena = (arenaKey: string) => {
-    router.push({
-      pathname: '/ArenaDecks',
-      params: { arena: arenaKey },
-    });
+    router.push({ pathname: "/ArenaDecks", params: { arena: arenaKey } });
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <ScrollView>
-        <View style={styles.container}>
-          <Image
-            source={require('../../assets/images/clash-royal.png')}
-            style={{ width: '100%', height: 200 }}
-          />
-        </View>
+    // ⬇️ Make the IMAGE the outermost container so it covers the entire screen
+    <ImageBackground
+      source={require("../../assets/images/diamond background.webp")}
+      resizeMode="cover"
+      style={{ flex: 1 }}
+    >
+      {/* ⬇️ SafeAreaView inside the background, keep it transparent */}
+      <SafeAreaView style={{ flex: 1 }}>
+        <ScrollView contentContainerStyle={styles.content}>
+          <Text style={styles.mainTitle}>Choose an Arena</Text>
 
-        <View style={styles.arenaCon}>        
-          {([
-            'arena8',
-            'arena12',
-             'arena15'
-          ] as const).map((key) => (
-            <Pressable 
-              key={key}
-              onPress={() => goToArena(key)}
-              hitSlop={10}
-              style={({ pressed }) => [
-                styles.arenaCard,
-                { opacity: pressed ? 0.6 : 1 },
-              ]}
-            >
-              <Text style={styles.arenaCap}>{key.replace('arena', 'Arena ')}</Text>
+          <View style={styles.arenaSection}>
+            <Pressable onPress={() => goToArena("arena8")} style={styles.arenaWrap}>
+              <Image
+                source={require("../../assets/images/arena8.png")}
+                style={styles.hero}
+              />
+              <Text style={styles.arenaLabel}>Arena 8</Text>
             </Pressable>
-          ))}
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+
+            <Pressable onPress={() => goToArena("arena12")} style={styles.arenaWrap}>
+              <Image
+                source={require("../../assets/images/arena_spooky.png")}
+                style={styles.hero}
+              />
+              <Text style={styles.arenaLabel}>Arena 12</Text>
+            </Pressable>
+
+            <Pressable onPress={() => goToArena("arena15")} style={styles.arenaWrap}>
+              <Image
+                source={require("../../assets/images/arena_mine.png")}
+                style={styles.hero}
+              />
+              <Text style={styles.arenaLabel}>Arena 15</Text>
+            </Pressable>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  arenaCon: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    padding: 12,
+  // Let content grow so the background image fills behind the tab bar
+  content: {
+    flexGrow: 1,
+    padding: 16,
+    paddingBottom: 40,
   },
-  arenaCard: {
-    width: '45%',
-    marginBottom: 16,
-    alignItems: 'center',
-    paddingVertical: 12,
-    backgroundColor: '#f2f2f2',
-    borderRadius: 8,
+
+  mainTitle: {
+    fontSize: 28,
+    fontWeight: "900",
+    color: "white",
+    textAlign: "center",
+    marginBottom: 20,
   },
-  arenaCap: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#111',
+
+  arenaSection: { gap: 32 },
+  arenaWrap: { alignItems: "center" },
+
+  hero: {
+    width: "100%",
+    height: 180,
+    resizeMode: "contain",
+    backgroundColor: "transparent",
   },
-  container: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-around', 
-    padding: 10 
+
+  arenaLabel: {
+    marginTop: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 22,
+    borderRadius: 22,
+    backgroundColor: "#1E40AF",
+    color: "white",
+    fontWeight: "800",
+    fontSize: 18,
+    textAlign: "center",
   },
 });
+
+

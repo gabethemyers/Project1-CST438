@@ -28,9 +28,9 @@ export default function TopPlayersScreen() {
     []
   );
 
-  // --- seasons picker state ---
+  /** seasons state (unchanged) */
   const [seasons, setSeasons] = useState<Season[]>([]);
-  const [selectedSeason, setSelectedSeason] = useState<string>("2022-09"); // default to last reliable
+  const [selectedSeason, setSelectedSeason] = useState<string>("2022-09");
   const [pickerOpen, setPickerOpen] = useState(false);
 
   useEffect(() => {
@@ -42,7 +42,6 @@ export default function TopPlayersScreen() {
         const json = JSON.parse(txt);
         const items: Season[] = Array.isArray(json?.items) ? json.items : [];
 
-        // Collect ids, filter valid, dedupe, and sort
         const ids = items
           .map((s) => String(s.id))
           .filter((id) => /^\d{4}-\d{2}$/.test(id) && id <= "2022-09");
@@ -58,7 +57,7 @@ export default function TopPlayersScreen() {
     })();
   }, [H]);
 
-  // --- players for chosen season ---
+  /** players state (unchanged) */
   const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -91,14 +90,13 @@ export default function TopPlayersScreen() {
     };
   }, [H, selectedSeason]);
 
-  // --- tap handler for player ---
+  /** nav (unchanged) */
   function goToPlayer(rawTag: string) {
     const tag = rawTag.startsWith("#") ? rawTag : `#${rawTag}`;
     const href = `/player/${encodeURIComponent(tag)}`;
     router.push(href as Href);
   }
 
-  // Ensure seasons are unique
   const uniqueSeasons = React.useMemo(
     () => Array.from(new Map(seasons.map((s) => [s.id, s])).values()),
     [seasons]
@@ -106,25 +104,33 @@ export default function TopPlayersScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Top Players</Text>
+      {/* Header */}
+      <View style={styles.headerBar}>
+        <Text style={styles.headerTitle}>Top Players</Text>
+      </View>
 
-      {/* Season selector field */}
-      <View style={styles.pickerRow}>
-        <Text style={styles.pickerLabel}>Season:</Text>
+      {/* Season selector */}
+      <View style={styles.selectorWrap}>
+        <Text style={styles.selectorLabel}>Season</Text>
         <Pressable
           onPress={() => setPickerOpen(true)}
           style={({ pressed }) => [
-            styles.pickerField,
-            pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] },
+            styles.selectorField,
+            pressed && { transform: [{ scale: 0.98 }], opacity: 0.95 },
           ]}
         >
-          <Text style={styles.pickerValue}>{selectedSeason}</Text>
-          <Text style={styles.pickerChevron}>▾</Text>
+          <Text style={styles.selectorValue}>{selectedSeason}</Text>
+          <Text style={styles.selectorChevron}>▾</Text>
         </Pressable>
       </View>
 
-      {/* Bottom sheet modal for seasons */}
-      <Modal visible={pickerOpen} transparent animationType="fade" onRequestClose={() => setPickerOpen(false)}>
+      {/* Seasons modal sheet */}
+      <Modal
+        visible={pickerOpen}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setPickerOpen(false)}
+      >
         <Pressable style={styles.backdrop} onPress={() => setPickerOpen(false)} />
         <View style={styles.sheet}>
           <View style={styles.sheetHeader}>
@@ -135,9 +141,10 @@ export default function TopPlayersScreen() {
           </View>
 
           <FlatList
-            data={[...uniqueSeasons].reverse()} // show newest first
+            data={[...uniqueSeasons].reverse()}
             keyExtractor={(s) => s.id}
             ItemSeparatorComponent={() => <View style={styles.sep} />}
+            style={{ maxHeight: 360 }}
             renderItem={({ item }) => {
               const active = item.id === selectedSeason;
               return (
@@ -146,10 +153,7 @@ export default function TopPlayersScreen() {
                     setSelectedSeason(item.id);
                     setPickerOpen(false);
                   }}
-                  style={[
-                    styles.optionRow,
-                    active && styles.optionActive,
-                  ]}
+                  style={[styles.optionRow, active && styles.optionActive]}
                 >
                   <Text style={[styles.optionText, active && styles.optionTextActive]}>
                     {item.id}
@@ -158,8 +162,7 @@ export default function TopPlayersScreen() {
                 </Pressable>
               );
             }}
-            contentContainerStyle={{ paddingBottom: 8 }}
-            style={{ maxHeight: 360 }}
+            contentContainerStyle={{ paddingBottom: 10 }}
           />
         </View>
       </Modal>
@@ -178,18 +181,21 @@ export default function TopPlayersScreen() {
         <FlatList
           data={players}
           keyExtractor={(p) => p.tag}
-          contentContainerStyle={{ padding: 12 }}
+          contentContainerStyle={{ padding: 12, paddingBottom: 20 }}
           renderItem={({ item }) => (
-            <Pressable onPress={() => goToPlayer(item.tag)} style={styles.row}>
+            <Pressable onPress={() => goToPlayer(item.tag)} style={styles.cardRow}>
               <View style={styles.rankBadge}>
                 <Text style={styles.rankText}>{item.rank}</Text>
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={styles.name}>{item.name}</Text>
-                <Text style={styles.subtle}>
-                  {item.trophies} 🏆 • {item.clan?.name ?? "No clan"}
+                <Text style={styles.meta}>
+                  <Text style={styles.trophy}>{item.trophies} 🏆</Text>
+                  <Text style={styles.metaDot}> • </Text>
+                  <Text style={styles.metaClan}>{item.clan?.name ?? "No clan"}</Text>
                 </Text>
               </View>
+              <Text style={styles.chev}>›</Text>
             </Pressable>
           )}
         />
@@ -198,104 +204,135 @@ export default function TopPlayersScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" },
-  header: {
-    textAlign: "center",
-    fontSize: 20,
-    fontWeight: "700",
-    paddingVertical: 12,
-    backgroundColor: "#111827",
-    color: "white",
-  },
-  center: { padding: 16, alignItems: "center", justifyContent: "center" },
-  dim: { color: "#6B7280", marginTop: 8 },
-  error: { color: "#DC2626", fontWeight: "700", marginTop: 8 },
+/** Styles only—no logic changed */
+const CLASH_DARK = "#0B1223";
+const CLASH_BLUE = "#1E3A8A";
+const CLASH_GOLD = "#FACC15";
 
-  // picker field
-  pickerRow: {
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: "#0f172a" }, // slate-900 backdrop
+
+  /** Header */
+  headerBar: {
+    backgroundColor: CLASH_DARK,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: "rgba(255,255,255,0.08)",
+  },
+  headerTitle: {
+    color: "white",
+    fontSize: 22,
+    fontWeight: "900",
+    textAlign: "center",
+    letterSpacing: 0.3,
+  },
+
+  /** Season selector row */
+  selectorWrap: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "#e5e7eb",
-    backgroundColor: "#fff",
+    gap: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: "#0f172a",
   },
-  pickerLabel: { fontWeight: "600", marginRight: 8 },
-  pickerField: {
+  selectorLabel: {
+    color: "#cbd5e1",
+    fontWeight: "700",
+  },
+  selectorField: {
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: Platform.select({ ios: 10, android: 8 }),
-    paddingHorizontal: 12,
-    backgroundColor: "#F3F4F6",
-    borderRadius: 10,
+    paddingHorizontal: 14,
+    borderRadius: 12,
+    backgroundColor: "#111827",
+    borderWidth: 1,
+    borderColor: "#1f2937",
   },
-  pickerValue: { fontSize: 16, fontWeight: "600" },
-  pickerChevron: { marginLeft: 8, fontSize: 14, color: "#6B7280" },
+  selectorValue: { color: "white", fontSize: 16, fontWeight: "700" },
+  selectorChevron: { marginLeft: 8, color: "#9CA3AF", fontSize: 14 },
 
-  // sheet
-  backdrop: { flex: 1, backgroundColor: "rgba(0,0,0,0.35)" },
+  /** Seasons sheet */
+  backdrop: { flex: 1, backgroundColor: "rgba(0,0,0,0.45)" },
   sheet: {
     position: "absolute",
     left: 0,
     right: 0,
     bottom: 0,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    backgroundColor: "#fff",
-    paddingBottom: 12,
-    paddingHorizontal: 12,
-    paddingTop: 8,
+    borderTopLeftRadius: 18,
+    borderTopRightRadius: 18,
+    backgroundColor: "#0b1220",
+    padding: 12,
     shadowColor: "#000",
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 12,
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 20,
   },
   sheetHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingVertical: 8,
+    paddingHorizontal: 4,
   },
-  sheetTitle: { fontSize: 16, fontWeight: "700" },
-  sheetClose: { color: "#2563EB", fontWeight: "600" },
-  sep: { height: StyleSheet.hairlineWidth, backgroundColor: "#E5E7EB" },
+  sheetTitle: { color: "white", fontSize: 16, fontWeight: "800" },
+  sheetClose: { color: CLASH_GOLD, fontWeight: "800" },
+  sep: { height: StyleSheet.hairlineWidth, backgroundColor: "rgba(255,255,255,0.08)" },
 
   optionRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingVertical: 12,
-    paddingHorizontal: 8,
-    borderRadius: 10,
+    paddingHorizontal: 10,
+    borderRadius: 12,
   },
-  optionActive: { backgroundColor: "#EEF2FF" },
-  optionText: { fontSize: 16 },
-  optionTextActive: { fontWeight: "700", color: "#1D4ED8" },
-  check: { color: "#1D4ED8", fontSize: 16, fontWeight: "700" },
+  optionActive: { backgroundColor: "rgba(30,64,175,0.35)" },
+  optionText: { color: "#e5e7eb", fontSize: 16 },
+  optionTextActive: { color: "#fff", fontWeight: "800" },
+  check: { color: CLASH_GOLD, fontSize: 16, fontWeight: "900" },
 
-  // list rows
-  row: {
+  /** Loading / error */
+  center: { padding: 16, alignItems: "center", justifyContent: "center" },
+  dim: { color: "#94A3B8", marginTop: 8 },
+  error: { color: "#F87171", fontWeight: "800", marginTop: 8 },
+
+  /** Player rows */
+  cardRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
-    padding: 12,
-    borderRadius: 12,
-    backgroundColor: "#F3F4F6",
+    padding: 14,
+    borderRadius: 14,
     marginBottom: 10,
+    backgroundColor: "#111827",
+    borderWidth: 1,
+    borderColor: "#1f2937",
+    shadowColor: "#000",
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 6,
   },
   rankBadge: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: "#3B82F6",
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: CLASH_BLUE,
     alignItems: "center",
     justifyContent: "center",
+    borderWidth: 2,
+    borderColor: "rgba(250,204,21,0.6)",
   },
-  rankText: { color: "white", fontWeight: "700" },
-  name: { fontSize: 16, fontWeight: "700" },
-  subtle: { color: "#374151", marginTop: 2 },
+  rankText: { color: "white", fontWeight: "900" },
+  name: { color: "white", fontSize: 16, fontWeight: "800" },
+  meta: { marginTop: 2 },
+  trophy: { color: CLASH_GOLD, fontWeight: "800" },
+  metaDot: { color: "#64748B" },
+  metaClan: { color: "#cbd5e1" },
+  chev: { color: "#94A3B8", fontSize: 18, fontWeight: "900" },
 });
 
 

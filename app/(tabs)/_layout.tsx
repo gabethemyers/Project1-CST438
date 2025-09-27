@@ -11,6 +11,7 @@ export default function TabsLayout() {
           options={{
             title: 'Search Player',
             tabBarLabel: 'Search',
+            headerShown: false,
             tabBarIcon: ({focused, color, size}) => {
               const iconName = focused ? 'search' : 'search-outline';
               return <Ionicons name={iconName} size={size} color={color} />;
