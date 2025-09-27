@@ -12,7 +12,7 @@ const rarities = [
     { label: 'Rare', value: 'rare' },
     { label: 'Epic', value: 'epic' },
     { label: 'Legendary', value: 'legendary' },
-    { label: 'Champion', value: 'Champion' },
+    { label: 'Champion', value: 'champion' },
 ];
 
 const elixirs = [
