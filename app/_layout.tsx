@@ -55,6 +55,7 @@ export default function RootLayout() {
 
         {/* detail screen outside the tabs */}
         <Stack.Screen name="player/[tag]" options={{ title: "Player", headerShown: true }} />
+        <Stack.Screen name="card/[tag]" options={{ title: "Card", headerShown: true }} />
 
 
         {/* Main app (inside tabs group) */}
