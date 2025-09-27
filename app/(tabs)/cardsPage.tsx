@@ -1,10 +1,11 @@
 import AntDesign from '@expo/vector-icons/AntDesign';
 import React from 'react';
-import { Button, Dimensions, FlatList, StyleSheet, Text, View } from 'react-native';
+import { Button, Dimensions, FlatList, StyleSheet, Text, View, Pressable, TouchableOpacity } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { CardItem } from '../../components/CardItem'; // Import the new component
 import { useDeckBuilder } from '../../context/DeckBuilderContext';
 import { Card, fetchCardsFromAPI } from '../../db/cards';
+import { router, type Href } from "expo-router";
 
 const rarities = [
     { label: 'Common', value: 'common' },
@@ -57,23 +58,33 @@ const CardsScreen = () => {
     const renderCard = ({ item }: { item: Card }) => {
         const isCardInDeck = activeDeck?.cards.some(c => c.id === item.id) ?? false;
         const isDeckFull = activeDeck ? activeDeck.cards.length >= 8 : false;
+        <TouchableOpacity onPress={() => goToCard(item.name)}>
+        </TouchableOpacity>
 
         return (
-            <CardItem
-                card={item}
-                renderAction={() => (
-                    // Only show the button if a deck is being built
-                    activeDeck && (
-                        <Button
-                            title={isCardInDeck ? "Added" : "Add"}
-                            onPress={() => addCard(item)}
-                            disabled={isCardInDeck || isDeckFull}
-                        />
-                    )
-                )}
-            />
+            <Pressable onPress={() => goToCard(item.name)}>
+                <CardItem
+                    card={item}
+                    renderAction={() => (
+                        // Only show the button if a deck is being built
+                        activeDeck && (
+                            <Button
+                                title={isCardInDeck ? "Added" : "Add"}
+                                onPress={() => addCard(item)}
+                                disabled={isCardInDeck || isDeckFull}
+                            />
+                        )
+                    )}
+                />
+            </Pressable>
         );
     };
+
+    function goToCard(rawTag: string) {
+        //const tag = rawTag.startsWith("#") ? rawTag : `#${rawTag}`;
+        const href = `/card/${encodeURIComponent(rawTag)}`;
+        router.push(href as Href);
+    }
 
 
     return (
@@ -120,11 +131,13 @@ const CardsScreen = () => {
                 `numColumns` creates the grid layout.
             */}
             <FlatList
+                
                 data={displayedCards}
                 renderItem={renderCard}
                 keyExtractor={(item) => item.id.toString()}
                 numColumns={2}
                 contentContainerStyle={styles.listContainer}
+             
             />
         </View>
     );

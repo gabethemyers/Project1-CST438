@@ -62,3 +62,27 @@ export const getCardCount = async (): Promise<number> => {
     const result = await db.getFirstAsync<{ count: number }>('SELECT COUNT(*) as count FROM cards');
     return result?.count ?? 0;
 };
+
+export const getCardInfo = async (cardName:string): Promise<Card | null> => {
+    const db = await getDBConnection();
+
+    const card = await db.getFirstAsync<any>('SELECT * FROM cards WHERE name = ?', [cardName]);
+
+    if (!card) return null;
+
+    const cardInfo: Card = {
+        id: card.card_id,
+        name: card.name,
+        rarity: card.rarity,
+        elixirCost: card.elixir_cost,
+        maxLevel: card.max_level,
+        maxEvolutionLevel: card.max_evolution,
+        iconUrls: {
+            medium: card.icon_url_medium,
+            evolutionMedium: card.icon_url_large,
+        },
+    };
+
+  return cardInfo;
+
+};
