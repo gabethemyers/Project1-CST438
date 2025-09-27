@@ -1,9 +1,9 @@
-import { LinearGradient } from "expo-linear-gradient";
 import { Link, useRouter } from "expo-router";
 import React from "react";
 import {
   ActivityIndicator,
   Alert,
+  ImageBackground,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -31,7 +31,7 @@ export default function LoginScreen() {
     }
     setLoading(true);
     try {
-      await login(username.trim(), password); // <-- use AuthContext (works with Deck Builder)
+      await login(username.trim(), password); // ✅ persists user for Deck Builder
       router.replace("/(tabs)/landingPage");
     } catch {
       Alert.alert("Login Failed", "Please check your username and password.");
@@ -41,10 +41,9 @@ export default function LoginScreen() {
   };
 
   return (
-    <LinearGradient
-      colors={["#0B1223", "#132558", "#1E3A8A"]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
+    <ImageBackground
+      source={require("../assets/images/royale.png")} 
+      resizeMode="cover"
       style={{ flex: 1 }}
     >
       <KeyboardAvoidingView
@@ -102,7 +101,7 @@ export default function LoginScreen() {
           </View>
         </View>
       </KeyboardAvoidingView>
-    </LinearGradient>
+    </ImageBackground>
   );
 }
 
