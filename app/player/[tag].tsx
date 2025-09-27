@@ -25,11 +25,7 @@ type Player = {
   currentDeck?: Card[];
 };
 
-
 const apiKey = process.env.EXPO_PUBLIC_CLASH_ROYALE_API_KEY;
-
-const apiKey =  process.env.EXPO_PUBLIC_CLASH_ROYALE_API_KEY;
-
 
 export default function PlayerScreen() {
   const { tag: rawTag } = useLocalSearchParams<{ tag: string }>();
