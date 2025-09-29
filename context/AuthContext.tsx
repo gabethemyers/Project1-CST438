@@ -9,6 +9,7 @@ interface User {
 interface AuthContextType {
     user: User | null;
     login: (username: string, pass: string) => Promise<void>;
+    signUp: (username: string, pass: string) => Promise<void>;
     logout: () => void;
 }
 
@@ -31,12 +32,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
+    const signUp = async (username: string, pass: string) => {
+        try {
+            const signedUpUser = await authService.verifyUser(username, pass);
+            if (signedUpUser) {
+                setUser({ id: signedUpUser.id, username: signedUpUser.username });
+            } else {
+                throw new Error("Invalid username or password");
+            }
+        } catch (error) {
+            console.error("Login failed:", error);
+            throw error; // Re-throw error to be caught by the login screen
+        }
+    };
+
     const logout = () => {
         setUser(null); 
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, logout }}>
+        <AuthContext.Provider value={{ user, login, signUp, logout }}>
             {children}
         </AuthContext.Provider>
     );

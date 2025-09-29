@@ -12,12 +12,14 @@ import {
   View,
 } from "react-native";
 import { createUser } from "../db/auth"; // keep your current logic
+import { useAuth } from "../context/AuthContext";
 
 export default function SignupScreen() {
   const router = useRouter();
   const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [loading, setLoading] = React.useState(false);
+  const { signUp } = useAuth();
 
   const canSubmit = username.trim().length >= 3 && password.length >= 6;
 
@@ -31,6 +33,7 @@ export default function SignupScreen() {
     try {
       const id = await createUser(u, password);
       Alert.alert("Success", `Account created (id ${id}).`);
+      await signUp(u.trim(), password);
       router.replace("/landingPage");
     } catch (e: any) {
       const msg = String(e?.message || e);
