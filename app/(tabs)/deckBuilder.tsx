@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Button, FlatList, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Button, FlatList, ImageBackground, StyleSheet, Text, TextInput, View } from 'react-native';
+import { SafeAreaView } from "react-native-safe-area-context";
 import { CardItem } from '../../components/CardItem';
 import { useAuth } from '../../context/AuthContext';
 import { useDeckBuilder } from '../../context/DeckBuilderContext';
@@ -69,37 +70,45 @@ export default function DeckBuilderScreen() {
     // This is the view for when you are actively editing a deck
     if (activeDeck) {
         return (
-            <View style={styles.container}>
-                <TextInput
-                    style={styles.deckNameInput}
-                    value={activeDeck.name}
-                    onChangeText={updateActiveDeckName}
-                    placeholder="Deck Name"
-                />
-                <FlatList
-                    key="active-deck-list"
-                    data={activeDeck.cards}
-                    keyExtractor={(item) => item.id.toString()}
-                    numColumns={2}
-                    contentContainerStyle={styles.listContainer}
-                    renderItem={({ item }: { item: Card }) => (
-                        <CardItem
-                            card={item}
-                            renderAction={() => (
-                                <Button title="Remove" onPress={() => removeCard(item.id)} />
-                            )}
+            <ImageBackground
+                source={require('../../assets/images/diamond background.webp')}
+                resizeMode="cover"
+                style={{ flex: 1 }}
+            >
+                <SafeAreaView style={{ flex: 1 }}>
+                    <View style={styles.container}>
+                        <TextInput
+                            style={styles.deckNameInput}
+                            value={activeDeck.name}
+                            onChangeText={updateActiveDeckName}
+                            placeholder="Deck Name"
                         />
-                    )}
-                    ListEmptyComponent={<Text style={styles.emptyText}>Go to the 'Cards' tab to add cards!</Text>}
-                />
-                <Button
-                    title="Save and Finish"
-                    onPress={async () => {
-                        await saveDeck();
-                        clearActiveDeck();
-                    }}
-                />
-            </View>
+                        <FlatList
+                            key="active-deck-list"
+                            data={activeDeck.cards}
+                            keyExtractor={(item) => item.id.toString()}
+                            numColumns={2}
+                            contentContainerStyle={styles.listContainer}
+                            renderItem={({ item }: { item: Card }) => (
+                                <CardItem
+                                    card={item}
+                                    renderAction={() => (
+                                        <Button title="Remove" onPress={() => removeCard(item.id)} />
+                                    )}
+                                />
+                            )}
+                            ListEmptyComponent={<Text style={styles.emptyText}>Go to the 'Cards' tab to add cards!</Text>}
+                        />
+                        <Button
+                            title="Save and Finish"
+                            onPress={async () => {
+                                await saveDeck();
+                                clearActiveDeck();
+                            }}
+                        />
+                    </View>
+                </SafeAreaView>
+            </ImageBackground>
         );
     }
 
@@ -114,40 +123,53 @@ export default function DeckBuilderScreen() {
 
     // This is the main view showing the list of all your decks
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>My Decks</Text>
-            <FlatList
-                key="user-decks-list"
-                data={userDecks}
-                keyExtractor={(item) => item.deck_id.toString()}
-                renderItem={({ item }) => (
-                    <View style={styles.deckContainer}>
-                        <View style={styles.deckHeader}>
-                            <View>
-                                <Text style={styles.deckName}>{item.name}</Text>
-                                <Text style={styles.elixirText}>Average Elixir: {calculateAverageElixir(item.cards)}</Text>
+        <ImageBackground
+            source={require('../../assets/images/diamond background.webp')}
+            resizeMode="cover"
+            style={styles.backgroundImage}
+        >
+            <SafeAreaView style={styles.safeArea}>
+                <View style={styles.container}>
+                    <Text style={styles.title}>My Decks</Text>
+                    <FlatList
+                        key="user-decks-list"
+                        data={userDecks}
+                        keyExtractor={(item) => item.deck_id.toString()}
+                        renderItem={({ item }) => (
+                            <View style={styles.deckContainer}>
+                                <View style={styles.deckHeader}>
+                                    <View>
+                                        <Text style={styles.deckName}>{item.name}</Text>
+                                        <Text style={styles.elixirText}>Average Elixir: {calculateAverageElixir(item.cards)}</Text>
+                                    </View>
+                                    <View style={styles.buttonGroup}>
+                                        <Button title="Edit" onPress={() => handleSelectDeck(item)} />
+                                        <Button title="Delete" color="red" onPress={() => handleDeleteDeck(item)} />
+                                    </View>
+                                </View>
+                                <FlatList
+                                    data={item.cards}
+                                    keyExtractor={(card) => card.id.toString()}
+                                    numColumns={4}
+                                    scrollEnabled={false}
+                                    contentContainerStyle={styles.deckCardList}
+                                    renderItem={({ item: card }) => (
+                                        <View style={styles.deckCardItem}>
+                                            <CardItem card={card} size="small" />
+                                        </View>
+                                    )}
+                                    ListEmptyComponent={<Text style={styles.emptyDeckText}>This deck is empty.</Text>}
+                                />
                             </View>
-                            <View style={styles.buttonGroup}>
-                                <Button title="Edit" onPress={() => handleSelectDeck(item)} />
-                                <Button title="Delete" color="red" onPress={() => handleDeleteDeck(item)} />
-                            </View>
-                        </View>
-                        <FlatList
-                            data={item.cards}
-                            keyExtractor={(card) => card.id.toString()}
-                            numColumns={4}
-                            scrollEnabled={false}
-                            renderItem={({ item: card }) => (
-                                <CardItem card={card} size="small" />
-                            )}
-                            ListEmptyComponent={<Text style={styles.emptyDeckText}>This deck is empty.</Text>}
-                        />
+                        )}
+                        ListEmptyComponent={<Text style={styles.emptyText}>You have no decks. Create one!</Text>}
+                    />
+                    <View style={styles.createButtonContainer}>
+                        <Button title="Create New Deck" onPress={handleCreateDeck} />
                     </View>
-                )}
-                ListEmptyComponent={<Text style={styles.emptyText}>You have no decks. Create one!</Text>}
-            />
-            <Button title="Create New Deck" onPress={handleCreateDeck} />
-        </View>
+                </View>
+            </SafeAreaView>
+        </ImageBackground>
     );
 }
 
@@ -158,55 +180,107 @@ const calculateAverageElixir = (cards: Card[]): number => {
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, padding: 10, backgroundColor: '#fff' },
-    title: { fontSize: 24, fontWeight: 'bold', marginBottom: 10, paddingHorizontal: 8 },
-    // Add a new style for the TextInput
+    backgroundImage: {
+        flex: 1,
+        width: '100%',
+    },
+    safeArea: {
+        flex: 1,
+    },
+    container: {
+        flex: 1,
+        padding: 16,
+    },
+    title: {
+        fontSize: 32,
+        fontWeight: 'bold',
+        marginBottom: 20,
+        color: 'white',
+        textAlign: 'center',
+        textShadowColor: 'rgba(0, 0, 0, 0.75)',
+        textShadowOffset: { width: -1, height: 1 },
+        textShadowRadius: 10
+    },
     deckNameInput: {
         fontSize: 24,
         fontWeight: 'bold',
-        marginBottom: 10,
-        padding: 10,
+        marginBottom: 16,
+        padding: 12,
         borderWidth: 1,
-        borderColor: '#ccc',
+        borderColor: '#90caf9',
         borderRadius: 8,
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        color: 'white',
     },
-    listContainer: { paddingHorizontal: 8 },
-    emptyText: { textAlign: 'center', marginTop: 20, fontSize: 16, color: '#666' },
-    emptyDeckText: { margin: 10, color: '#888' },
-    // Deck List Styles
+    listContainer: {
+        paddingHorizontal: 8,
+    },
+    emptyText: {
+        textAlign: 'center',
+        marginTop: 20,
+        fontSize: 18,
+        color: 'white',
+    },
+    emptyDeckText: {
+        margin: 10,
+        color: '#90caf9',
+    },
     deckContainer: {
-        marginBottom: 15,
-        padding: 10,
-        backgroundColor: '#f9f9f9',
-        borderRadius: 8,
+        marginBottom: 16,
+        padding: 8, // Reduced padding
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        borderRadius: 12,
         borderWidth: 1,
-        borderColor: '#eee',
+        borderColor: '#90caf9',
     },
     deckHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 10,
+        marginBottom: 12,
     },
-    deckName: { fontSize: 18, fontWeight: 'bold' },
-    elixirText: { fontSize: 14, color: '#555' },
-    buttonGroup: { flexDirection: 'row', gap: 10 },
-    // REMOVED smallCardImage style and added new grid styles
+    deckName: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: 'white',
+    },
+    elixirText: {
+        fontSize: 16,
+        color: '#90caf9',
+        marginTop: 4,
+    },
+    buttonGroup: {
+        flexDirection: 'row',
+        gap: 12,
+    },
     gridCardItem: {
         flex: 1,
         alignItems: 'center',
-        marginBottom: 10,
+        marginBottom: 12,
     },
     gridCardImage: {
         width: 65,
         height: 80,
-        borderRadius: 5,
+        borderRadius: 8,
         borderWidth: 1,
-        borderColor: '#ddd',
+        borderColor: '#90caf9',
     },
     gridCardName: {
         fontSize: 12,
         marginTop: 4,
         textAlign: 'center',
+        color: 'white',
+    },
+    createButtonContainer: {
+        marginTop: 16,
+        paddingHorizontal: 32,
+    },
+    deckCardList: {
+        justifyContent: 'flex-start',
+    },
+    deckCardItem: {
+        width: '25%',
+        padding: 2,
+        aspectRatio: 1, // Changed from 0.8 to make it square
     },
 });

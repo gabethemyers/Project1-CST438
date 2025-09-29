@@ -28,96 +28,93 @@ export const CardItem = ({ card, renderAction, size = 'medium' }: CardItemProps)
 
 const { width } = Dimensions.get('window');
 const cardWidth = width / 2 - 24;
-const smallCardWidth = width / 4 - 16;
 
 const mediumStyles = StyleSheet.create({
     cardContainer: {
-        width: cardWidth,
-        backgroundColor: '#f8f8f8',
-        borderRadius: 8,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
-        margin: 8,
+        flex: 1,
+        width: '100%', // Ensure the card takes up the full width of its wrapper
+        aspectRatio: 0.75, // Maintain a consistent aspect ratio
+        backgroundColor: '#1a237e',
+        borderRadius: 12,
+        margin: 4, // Reduce margin to avoid excessive spacing
         alignItems: 'center',
-        padding: 12,
+        padding: 12, // Adjust padding for better spacing
         position: 'relative',
+        borderWidth: 1,
+        borderColor: '#90caf9',
+        justifyContent: 'space-between',
     },
     elixirContainer: {
         position: 'absolute',
-        top: 4,
-        left: 4,
+        top: 8,
+        left: 8,
         backgroundColor: '#6a0dad',
-        width: 24,
-        height: 24,
-        borderRadius: 12,
+        width: 28,
+        height: 28,
+        borderRadius: 14,
         justifyContent: 'center',
         alignItems: 'center',
         zIndex: 1,
     },
     elixirCost: {
         color: '#fff',
-        fontSize: 12,
         fontWeight: 'bold',
+        fontSize: 14,
     },
     cardImage: {
-        width: '100%',
-        height: 120,
+        width: '80%', // Scale image to fit within the container
+        height: '60%', // Maintain proportional height
         resizeMode: 'contain',
-        marginBottom: 8,
+        marginVertical: 8,
     },
     cardName: {
+        color: '#fff',
         fontSize: 14,
-        fontWeight: '600',
         textAlign: 'center',
+        paddingHorizontal: 4,
         marginBottom: 8,
     },
 });
 
+
 const smallStyles = StyleSheet.create({
     cardContainer: {
-        width: smallCardWidth,
-        backgroundColor: '#f8f8f8',
-        borderRadius: 6,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.1,
-        shadowRadius: 2,
-        elevation: 2,
-        margin: 4,
+        width: '100%',
+        height: '100%',
+        backgroundColor: 'transparent',
+        borderRadius: 4,
         alignItems: 'center',
-        padding: 6,
+        padding: 4,
         position: 'relative',
+        justifyContent: 'center',
     },
     elixirContainer: {
         position: 'absolute',
-        top: 2,
-        left: 2,
+        top: 0,
+        left: 0,
         backgroundColor: '#6a0dad',
-        width: 18,
-        height: 18,
-        borderRadius: 9,
+        width: 16,
+        height: 16,
+        borderRadius: 8,
         justifyContent: 'center',
         alignItems: 'center',
         zIndex: 1,
     },
     elixirCost: {
         color: '#fff',
-        fontSize: 10,
+        fontSize: 9,
         fontWeight: 'bold',
     },
     cardImage: {
         width: '100%',
-        height: 80,
+        flex: 1,
         resizeMode: 'contain',
-        marginBottom: 4,
     },
     cardName: {
-        fontSize: 12,
+        fontSize: 10,
         fontWeight: '600',
         textAlign: 'center',
-        marginBottom: 4,
+        color: 'white',
+        marginTop: 2,
     },
 });
