@@ -62,8 +62,8 @@ user to search for and see information on a player using the player's player tag
 ---
 
 ### Jorge Barrera
-1. Jorge’s pull requests are here  
-2. Jorge’s Github issues are here  
+1. Jorge’s pull requests are [here](https://github.com/gabethemyers/Project1-CST438/issues?q=is%3Aclosed%20is%3Apr%20author%3AJorgeBarr983)  
+2. Jorge’s Github issues are [here](https://github.com/gabethemyers/Project1-CST438/issues?q=is%3Aissue%20assignee%3AJorgeBarr983)  
 
 What was your role / which stories did you work on  
 In this project, Jorge was responsible for implementing several key features related to
