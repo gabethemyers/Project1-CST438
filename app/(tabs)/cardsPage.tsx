@@ -1,11 +1,11 @@
 import AntDesign from '@expo/vector-icons/AntDesign';
+import { router, type Href } from "expo-router";
 import React from 'react';
-import { Button, Dimensions, FlatList, StyleSheet, Text, View, Pressable, TouchableOpacity } from 'react-native';
+import { Button, FlatList, ImageBackground, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
-import { CardItem } from '../../components/CardItem'; // Import the new component
+import { CardItem } from '../../components/CardItem';
 import { useDeckBuilder } from '../../context/DeckBuilderContext';
 import { Card, fetchCardsFromAPI } from '../../db/cards';
-import { router, type Href } from "expo-router";
 
 const rarities = [
     { label: 'Common', value: 'common' },
@@ -58,11 +58,9 @@ const CardsScreen = () => {
     const renderCard = ({ item }: { item: Card }) => {
         const isCardInDeck = activeDeck?.cards.some(c => c.id === item.id) ?? false;
         const isDeckFull = activeDeck ? activeDeck.cards.length >= 8 : false;
-        <TouchableOpacity onPress={() => goToCard(item.name)}>
-        </TouchableOpacity>
 
         return (
-            <Pressable onPress={() => goToCard(item.name)}>
+            <Pressable onPress={() => goToCard(item.name)} style={{ flex: 1, alignItems: 'center' }}>
                 <CardItem
                     card={item}
                     renderAction={() => (
@@ -88,96 +86,123 @@ const CardsScreen = () => {
 
 
     return (
-        // Set a flex: 1 on the outer container to ensure FlatList can scroll
-        <View style={{ flex: 1, backgroundColor: 'white' }}>
-            <View style={styles.filterContainer}>
-                <Text style={styles.headerText}>Card Collection</Text>
-                <Button title="Reset Filters" onPress={() => {
-                    setRarityFilter(null);
-                    setElixirFilter(null);
-                }} />
+        <ImageBackground
+            source={require('../../assets/images/diamond background.webp')}
+            resizeMode="cover"
+            style={{ flex: 1 }}
+        >
+            <SafeAreaView style={{ flex: 1 }}>
+                <View style={styles.container}>
+                    <Text style={styles.title}>Card Collection</Text>
+                    <View style={styles.filterContainer}>
+                        <Button title="Reset Filters" onPress={() => {
+                            setRarityFilter(null);
+                            setElixirFilter(null);
+                        }} />
 
-                <Dropdown
-                    style={styles.dropdown}
-                    placeholderStyle={styles.placeholderStyle}
-                    selectedTextStyle={styles.selectedTextStyle}
-                    data={rarities}
-                    maxHeight={300}
-                    labelField="label"
-                    valueField="value"
-                    placeholder="Select Rarity"
-                    value={rarityFilter}
-                    onChange={item => setRarityFilter(item.value)}
-                    renderLeftIcon={() => <AntDesign style={styles.icon} name="filter" size={20} />}
-                />
+                        <Dropdown
+                            style={styles.dropdown}
+                            placeholderStyle={styles.placeholderStyle}
+                            selectedTextStyle={styles.selectedTextStyle}
+                            data={rarities}
+                            maxHeight={300}
+                            labelField="label"
+                            valueField="value"
+                            placeholder="Select Rarity"
+                            value={rarityFilter}
+                            onChange={item => setRarityFilter(item.value)}
+                            renderLeftIcon={() => <AntDesign style={styles.icon} name="filter" size={20} />}
+                        />
 
-                <Dropdown
-                    style={styles.dropdown}
-                    placeholderStyle={styles.placeholderStyle}
-                    selectedTextStyle={styles.selectedTextStyle}
-                    data={elixirs}
-                    maxHeight={300}
-                    labelField="label"
-                    valueField="value"
-                    placeholder="Select Elixir Cost"
-                    value={elixirFilter}
-                    onChange={item => setElixirFilter(item.value)}
-                    renderLeftIcon={() => <AntDesign style={styles.icon} name="filter" size={20} />}
-                />
-            </View>
+                        <Dropdown
+                            style={styles.dropdown}
+                            placeholderStyle={styles.placeholderStyle}
+                            selectedTextStyle={styles.selectedTextStyle}
+                            data={elixirs}
+                            maxHeight={300}
+                            labelField="label"
+                            valueField="value"
+                            placeholder="Select Elixir Cost"
+                            value={elixirFilter}
+                            onChange={item => setElixirFilter(item.value)}
+                            renderLeftIcon={() => <AntDesign style={styles.icon} name="filter" size={20} />}
+                        />
+                    </View>
 
-            {/* --- 3. Configured FlatList ---
-                This replaces the ScrollView and .map() function.
-                `numColumns` creates the grid layout.
-            */}
-            <FlatList
-                
-                data={displayedCards}
-                renderItem={renderCard}
-                keyExtractor={(item) => item.id.toString()}
-                numColumns={2}
-                contentContainerStyle={styles.listContainer}
-             
-            />
-        </View>
+                    <FlatList
+                        data={displayedCards}
+                        renderItem={renderCard}
+                        keyExtractor={(item) => item.id.toString()}
+                        numColumns={2}
+                        columnWrapperStyle={styles.columnWrapper}
+                        contentContainerStyle={[styles.listContainer, { paddingBottom: 24 }]}
+                    />
+                </View>
+            </SafeAreaView>
+        </ImageBackground>
     );
 };
 
 export default CardsScreen;
 
-const { width } = Dimensions.get('window');
-const cardWidth = width / 2 - 24; // (Screen width / 2 columns) - (horizontal margins)
+// responsive sizing handled in CardItem; column spacing below prevents clipping
 
 const styles = StyleSheet.create({
-    filterContainer: {
-        backgroundColor: 'white',
+    container: {
+        flex: 1,
         padding: 16,
-        paddingBottom: 8,
+    },
+    title: {
+        fontSize: 32,
+        fontWeight: 'bold',
+        marginBottom: 20,
+        color: 'white',
+        textAlign: 'center',
+        textShadowColor: 'rgba(0, 0, 0, 0.75)',
+        textShadowOffset: { width: -1, height: 1 },
+        textShadowRadius: 10
+    },
+    filterContainer: {
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        padding: 16,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: '#90caf9',
+        marginBottom: 16,
     },
     listContainer: {
-        paddingHorizontal: 8, // Adds space on the sides of the grid
+        paddingHorizontal: 8,
+        paddingBottom: 24,
+    },
+    columnWrapper: {
+        justifyContent: 'space-around', // Distribute cards evenly
+        marginVertical: 8, // Add consistent vertical spacing
+    },
+    cardWrapper: {
+        width: '48%', // Each card takes up 48% of the row
+        marginHorizontal: 4, // Small horizontal margin
+        aspectRatio: 0.75, // Ensure cards are not too skinny
     },
     dropdown: {
         height: 50,
-        borderColor: 'gray',
-        borderWidth: 0.5,
+        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+        borderColor: '#90caf9',
+        borderWidth: 1,
         borderRadius: 8,
         paddingHorizontal: 8,
         marginTop: 8,
+        marginBottom: 8,
     },
     icon: {
         marginRight: 5,
+        color: '#90caf9',
     },
     placeholderStyle: {
         fontSize: 16,
+        color: '#90caf9',
     },
     selectedTextStyle: {
         fontSize: 16,
-    },
-    headerText: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        textAlign: 'center',
-        marginBottom: 10,
+        color: 'white',
     },
 });
