@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
+  ImageBackground,
   Modal,
   Platform,
   Pressable,
@@ -28,7 +29,6 @@ export default function TopPlayersScreen() {
     []
   );
 
-  /** seasons state (unchanged) */
   const [seasons, setSeasons] = useState<Season[]>([]);
   const [selectedSeason, setSelectedSeason] = useState<string>("2022-09");
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -57,7 +57,6 @@ export default function TopPlayersScreen() {
     })();
   }, [H]);
 
-  /** players state (unchanged) */
   const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -90,7 +89,6 @@ export default function TopPlayersScreen() {
     };
   }, [H, selectedSeason]);
 
-  /** nav (unchanged) */
   function goToPlayer(rawTag: string) {
     const tag = rawTag.startsWith("#") ? rawTag : `#${rawTag}`;
     const href = `/player/${encodeURIComponent(tag)}`;
@@ -103,114 +101,121 @@ export default function TopPlayersScreen() {
   );
 
   return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.headerBar}>
-        <Text style={styles.headerTitle}>Top Players</Text>
-      </View>
+    <ImageBackground
+      source={require("../../assets/images/diamond background.webp")}
+      style={styles.bg}
+      resizeMode="cover"
+    >
+      <View style={styles.container}>
+        {/* Header */}
+        <View style={styles.headerBar}>
+          <Text style={styles.headerTitle}>Top Players</Text>
+        </View>
 
-      {/* Season selector */}
-      <View style={styles.selectorWrap}>
-        <Text style={styles.selectorLabel}>Season</Text>
-        <Pressable
-          onPress={() => setPickerOpen(true)}
-          style={({ pressed }) => [
-            styles.selectorField,
-            pressed && { transform: [{ scale: 0.98 }], opacity: 0.95 },
-          ]}
+        {/* Season selector */}
+        <View style={styles.selectorWrap}>
+          <Text style={styles.selectorLabel}>Season</Text>
+          <Pressable
+            onPress={() => setPickerOpen(true)}
+            style={({ pressed }) => [
+              styles.selectorField,
+              pressed && { transform: [{ scale: 0.98 }], opacity: 0.95 },
+            ]}
+          >
+            <Text style={styles.selectorValue}>{selectedSeason}</Text>
+            <Text style={styles.selectorChevron}>▾</Text>
+          </Pressable>
+        </View>
+
+        {/* Seasons modal sheet */}
+        <Modal
+          visible={pickerOpen}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setPickerOpen(false)}
         >
-          <Text style={styles.selectorValue}>{selectedSeason}</Text>
-          <Text style={styles.selectorChevron}>▾</Text>
-        </Pressable>
-      </View>
+          <Pressable style={styles.backdrop} onPress={() => setPickerOpen(false)} />
+          <View style={styles.sheet}>
+            <View style={styles.sheetHeader}>
+              <Text style={styles.sheetTitle}>Select Season</Text>
+              <Pressable onPress={() => setPickerOpen(false)} hitSlop={10}>
+                <Text style={styles.sheetClose}>Close</Text>
+              </Pressable>
+            </View>
 
-      {/* Seasons modal sheet */}
-      <Modal
-        visible={pickerOpen}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setPickerOpen(false)}
-      >
-        <Pressable style={styles.backdrop} onPress={() => setPickerOpen(false)} />
-        <View style={styles.sheet}>
-          <View style={styles.sheetHeader}>
-            <Text style={styles.sheetTitle}>Select Season</Text>
-            <Pressable onPress={() => setPickerOpen(false)} hitSlop={10}>
-              <Text style={styles.sheetClose}>Close</Text>
-            </Pressable>
+            <FlatList
+              data={[...uniqueSeasons].reverse()}
+              keyExtractor={(s) => s.id}
+              ItemSeparatorComponent={() => <View style={styles.sep} />}
+              style={{ maxHeight: 360 }}
+              renderItem={({ item }) => {
+                const active = item.id === selectedSeason;
+                return (
+                  <Pressable
+                    onPress={() => {
+                      setSelectedSeason(item.id);
+                      setPickerOpen(false);
+                    }}
+                    style={[styles.optionRow, active && styles.optionActive]}
+                  >
+                    <Text style={[styles.optionText, active && styles.optionTextActive]}>
+                      {item.id}
+                    </Text>
+                    {active ? <Text style={styles.check}>✓</Text> : null}
+                  </Pressable>
+                );
+              }}
+              contentContainerStyle={{ paddingBottom: 10 }}
+            />
           </View>
+        </Modal>
 
+        {loading ? (
+          <View style={styles.center}>
+            <ActivityIndicator />
+            <Text style={styles.dim}>Loading…</Text>
+          </View>
+        ) : error ? (
+          <View style={styles.center}>
+            <Text style={styles.error}>Error</Text>
+            <Text style={styles.dim}>{error}</Text>
+          </View>
+        ) : (
           <FlatList
-            data={[...uniqueSeasons].reverse()}
-            keyExtractor={(s) => s.id}
-            ItemSeparatorComponent={() => <View style={styles.sep} />}
-            style={{ maxHeight: 360 }}
-            renderItem={({ item }) => {
-              const active = item.id === selectedSeason;
-              return (
-                <Pressable
-                  onPress={() => {
-                    setSelectedSeason(item.id);
-                    setPickerOpen(false);
-                  }}
-                  style={[styles.optionRow, active && styles.optionActive]}
-                >
-                  <Text style={[styles.optionText, active && styles.optionTextActive]}>
-                    {item.id}
+            data={players}
+            keyExtractor={(p) => p.tag}
+            contentContainerStyle={{ padding: 12, paddingBottom: 20 }}
+            renderItem={({ item }) => (
+              <Pressable onPress={() => goToPlayer(item.tag)} style={styles.cardRow}>
+                <View style={styles.rankBadge}>
+                  <Text style={styles.rankText}>{item.rank}</Text>
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.name}>{item.name}</Text>
+                  <Text style={styles.meta}>
+                    <Text style={styles.trophy}>{item.trophies} 🏆</Text>
+                    <Text style={styles.metaDot}> • </Text>
+                    <Text style={styles.metaClan}>{item.clan?.name ?? "No clan"}</Text>
                   </Text>
-                  {active ? <Text style={styles.check}>✓</Text> : null}
-                </Pressable>
-              );
-            }}
-            contentContainerStyle={{ paddingBottom: 10 }}
+                </View>
+                <Text style={styles.chev}>›</Text>
+              </Pressable>
+            )}
           />
-        </View>
-      </Modal>
-
-      {loading ? (
-        <View style={styles.center}>
-          <ActivityIndicator />
-          <Text style={styles.dim}>Loading…</Text>
-        </View>
-      ) : error ? (
-        <View style={styles.center}>
-          <Text style={styles.error}>Error</Text>
-          <Text style={styles.dim}>{error}</Text>
-        </View>
-      ) : (
-        <FlatList
-          data={players}
-          keyExtractor={(p) => p.tag}
-          contentContainerStyle={{ padding: 12, paddingBottom: 20 }}
-          renderItem={({ item }) => (
-            <Pressable onPress={() => goToPlayer(item.tag)} style={styles.cardRow}>
-              <View style={styles.rankBadge}>
-                <Text style={styles.rankText}>{item.rank}</Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.name}>{item.name}</Text>
-                <Text style={styles.meta}>
-                  <Text style={styles.trophy}>{item.trophies} 🏆</Text>
-                  <Text style={styles.metaDot}> • </Text>
-                  <Text style={styles.metaClan}>{item.clan?.name ?? "No clan"}</Text>
-                </Text>
-              </View>
-              <Text style={styles.chev}>›</Text>
-            </Pressable>
-          )}
-        />
-      )}
-    </View>
+        )}
+      </View>
+    </ImageBackground>
   );
 }
 
-/** Styles only—no logic changed */
 const CLASH_DARK = "#0B1223";
 const CLASH_BLUE = "#1E3A8A";
 const CLASH_GOLD = "#FACC15";
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#0f172a" }, // slate-900 backdrop
+  bg: { flex: 1 },
+
+  container: { flex: 1 },
 
   /** Header */
   headerBar: {
@@ -235,7 +240,7 @@ const styles = StyleSheet.create({
     gap: 10,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: "#0f172a",
+    backgroundColor: "rgba(11,18,35,0.85)", // translucent to blend with bg
   },
   selectorLabel: {
     color: "#cbd5e1",
@@ -307,7 +312,7 @@ const styles = StyleSheet.create({
     padding: 14,
     borderRadius: 14,
     marginBottom: 10,
-    backgroundColor: "#111827",
+    backgroundColor: "rgba(17,24,39,0.85)", // translucent dark card
     borderWidth: 1,
     borderColor: "#1f2937",
     shadowColor: "#000",
@@ -334,5 +339,6 @@ const styles = StyleSheet.create({
   metaClan: { color: "#cbd5e1" },
   chev: { color: "#94A3B8", fontSize: 18, fontWeight: "900" },
 });
+
 
 
