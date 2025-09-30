@@ -1,66 +1,41 @@
 // app/player/[tag].tsx
 import { Stack, useLocalSearchParams } from "expo-router";
-import React, { useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, View } from "react-native";
-
-type Arena = { id: number; name: string };
-type Clan = { name?: string };
-type CardIconUrls = { medium?: string; evolutionMedium?: string };
-type Card = { id: number; name: string; iconUrls?: CardIconUrls };
-type SeasonLite = { id?: string; trophies?: number; bestTrophies?: number };
-
-type Player = {
-  tag: string;
-  name: string;
-  trophies: number;
-  bestTrophies?: number;
-  expLevel?: number;
-  clan?: Clan;
-  arena?: Arena;
-  leagueStatistics?: {
-    currentSeason?: SeasonLite;
-    previousSeason?: SeasonLite;
-    bestSeason?: SeasonLite;
-  };
-  currentDeck?: Card[];
-};
+import React, { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  FlatList,
+  Image,
+  ImageBackground,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 const apiKey = process.env.EXPO_PUBLIC_CLASH_ROYALE_API_KEY;
 
 export default function PlayerScreen() {
-  const { tag: rawTag } = useLocalSearchParams<{ tag: string }>();
-  const tag = decodeURIComponent(rawTag ?? "");
-
-  const H = useMemo(
-    () => ({
-      Authorization: `Bearer ${apiKey}`,
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    }),
-    []
-  );
-
-  const [player, setPlayer] = useState<Player | null>(null);
+  const { tag } = useLocalSearchParams<{ tag: string }>();
+  const [player, setPlayer] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [err, setErr] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        setLoading(true);
-        setErr(null);
-        const res = await fetch(
-          `https://api.clashroyale.com/v1/players/${encodeURIComponent(tag)}`,
-          { headers: H }
-        );
+        const url = `https://api.clashroyale.com/v1/players/${encodeURIComponent(
+          tag
+        )}`;
+        const res = await fetch(url, {
+          headers: { Authorization: `Bearer ${apiKey}` },
+        });
         const txt = await res.text();
+        if (!res.ok) throw new Error(txt);
         if (cancelled) return;
-        if (!res.ok) throw new Error(`HTTP ${res.status} – ${txt}`);
-        const json = JSON.parse(txt) as Player;
-        setPlayer(json);
+        setPlayer(JSON.parse(txt));
       } catch (e: any) {
-        if (!cancelled) setErr(String(e?.message || e));
+        if (!cancelled) setError(String(e?.message || e));
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -68,158 +43,143 @@ export default function PlayerScreen() {
     return () => {
       cancelled = true;
     };
-  }, [H, tag]);
+  }, [tag]);
 
   return (
-    <>
+    <ImageBackground
+      source={require("../../assets/images/diamond background.webp")}
+      style={styles.bg}
+      resizeMode="cover"
+    >
       <Stack.Screen options={{ title: "Player" }} />
-      <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 24 }}>
+      <ScrollView contentContainerStyle={{ padding: 16 }}>
         {loading ? (
           <View style={styles.center}>
             <ActivityIndicator />
-            <Text style={styles.dim}>Loading…</Text>
+            <Text style={styles.dim}>Loading player…</Text>
           </View>
-        ) : err ? (
+        ) : error ? (
           <View style={styles.center}>
             <Text style={styles.error}>Failed to load player</Text>
-            <Text style={styles.dim}>{err}</Text>
-          </View>
-        ) : !player ? (
-          <View style={styles.center}>
-            <Text style={styles.dim}>No data.</Text>
+            <Text style={styles.dim}>{error}</Text>
           </View>
         ) : (
-          <>
-            <Text style={styles.title}>{player.name || "Player"}</Text>
-            <Text style={styles.tag}>{player.tag}</Text>
+          player && (
+            <View style={{ gap: 16 }}>
+              {/* Header */}
+              <View>
+                <Text style={styles.name}>{player.name}</Text>
+                <Text style={styles.tag}>{player.tag}</Text>
+              </View>
 
-            <View style={styles.card}>
-              <Line label="Trophies" value={fmt(player.trophies)} />
-              <Line label="Best" value={fmt(player.bestTrophies)} />
-              <Line label="XP Level" value={fmt(player.expLevel)} />
-              <Line label="Arena" value={player.arena?.name} />
-              <Line label="Clan" value={player.clan?.name ?? "No clan"} />
+              {/* Stats card */}
+              <View style={styles.card}>
+                <Text style={styles.rowText}>
+                  <Text style={styles.bold}>Trophies: </Text>
+                  {player.trophies}
+                </Text>
+                <Text style={styles.rowText}>
+                  <Text style={styles.bold}>Best: </Text>
+                  {player.bestTrophies}
+                </Text>
+                <Text style={styles.rowText}>
+                  <Text style={styles.bold}>XP Level: </Text>
+                  {player.expLevel}
+                </Text>
+                <Text style={styles.rowText}>
+                  <Text style={styles.bold}>Arena: </Text>
+                  {player.arena?.name}
+                </Text>
+                <Text style={styles.rowText}>
+                  <Text style={styles.bold}>Clan: </Text>
+                  {player.clan?.name ?? "—"}
+                </Text>
+              </View>
+
+              {/* League card */}
+              <View style={styles.card}>
+                <Text style={styles.sectionTitle}>League</Text>
+                <Text style={styles.rowText}>
+                  Current: {player.leagueStatistics?.currentSeason?.trophies} (
+                  best {player.leagueStatistics?.currentSeason?.bestTrophies})
+                </Text>
+                <Text style={styles.rowText}>
+                  Previous {player.leagueStatistics?.previousSeason?.id}:{" "}
+                  {player.leagueStatistics?.previousSeason?.trophies} (best{" "}
+                  {player.leagueStatistics?.previousSeason?.bestTrophies})
+                </Text>
+                <Text style={styles.rowText}>
+                  Best {player.leagueStatistics?.bestSeason?.id}:{" "}
+                  {player.leagueStatistics?.bestSeason?.trophies}
+                </Text>
+              </View>
+
+              {/* Deck card */}
+              <View style={styles.card}>
+                <Text style={styles.sectionTitle}>Current Deck</Text>
+                <FlatList
+                  data={player.currentDeck}
+                  keyExtractor={(c) => String(c.id)}
+                  numColumns={4}
+                  scrollEnabled={false}
+                  contentContainerStyle={{ marginTop: 8 }}
+                  renderItem={({ item }) => (
+                    <View style={styles.deckItem}>
+                      <Image
+                        source={{ uri: item.iconUrls?.medium }}
+                        style={styles.deckImg}
+                      />
+                      <Text style={styles.deckName} numberOfLines={1}>
+                        {item.name}
+                      </Text>
+                    </View>
+                  )}
+                />
+              </View>
             </View>
-
-            <View style={styles.card}>
-              <Text style={styles.section}>League</Text>
-              <Text style={styles.line}>
-                Current: {fmt(player.leagueStatistics?.currentSeason?.trophies)}{" "}
-                (best {fmt(player.leagueStatistics?.currentSeason?.bestTrophies)})
-              </Text>
-              <Text style={styles.line}>
-                Previous {player.leagueStatistics?.previousSeason?.id ?? "—"}:{" "}
-                {fmt(player.leagueStatistics?.previousSeason?.trophies)} (best{" "}
-                {fmt(player.leagueStatistics?.previousSeason?.bestTrophies)})
-              </Text>
-              <Text style={styles.line}>
-                Best {player.leagueStatistics?.bestSeason?.id ?? "—"}:{" "}
-                {fmt(player.leagueStatistics?.bestSeason?.trophies)}
-              </Text>
-            </View>
-
-            {/* Current Deck images as grid */}
-            <View style={styles.card}>
-              <Text style={styles.section}>Current Deck</Text>
-
-              {player.currentDeck?.length ? (
-                <View style={styles.deckGrid}>
-                  {player.currentDeck.map((c) => {
-                    const uri =
-                      c.iconUrls?.evolutionMedium ||
-                      c.iconUrls?.medium ||
-                      undefined;
-                    return (
-                      <View style={styles.deckItem} key={c.id}>
-                        {uri ? (
-                          <Image
-                            source={{ uri }}
-                            style={styles.cardImage}
-                            resizeMode="contain"
-                          />
-                        ) : (
-                          <View style={[styles.cardImage, styles.cardImageFallback]}>
-                            <Text style={styles.cardImageFallbackText}>No Img</Text>
-                          </View>
-                        )}
-                        <Text style={styles.cardName} numberOfLines={1}>
-                          {c.name}
-                        </Text>
-                      </View>
-                    );
-                  })}
-                </View>
-              ) : (
-                <Text style={styles.dim}>No deck available.</Text>
-              )}
-            </View>
-          </>
+          )
         )}
       </ScrollView>
-    </>
+    </ImageBackground>
   );
-}
-
-function Line({ label, value }: { label: string; value?: string | number | null }) {
-  return (
-    <Text style={styles.line}>
-      <Text style={{ fontWeight: "700" }}>{label}:</Text> {value ?? "—"}
-    </Text>
-  );
-}
-
-function fmt(n?: number | null) {
-  return typeof n === "number" ? n.toLocaleString() : "—";
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" },
-  center: { padding: 24, alignItems: "center", justifyContent: "center" },
-  dim: { color: "#6B7280", marginTop: 8 },
-  error: { color: "#DC2626", fontWeight: "700" },
+  bg: { flex: 1 },
 
-  title: { fontSize: 34, fontWeight: "800", paddingHorizontal: 16, paddingTop: 12 },
-  tag: { color: "#6B7280", paddingHorizontal: 16, marginTop: 4, marginBottom: 12 },
+  center: { alignItems: "center", justifyContent: "center", padding: 20 },
+  dim: { color: "#CBD5E1", marginTop: 8 },
+  error: { color: "#F87171", fontWeight: "700" },
+
+  name: { fontSize: 28, fontWeight: "900", color: "#fff" },
+  tag: { fontSize: 14, color: "#93C5FD", marginTop: 4 },
 
   card: {
-    backgroundColor: "#F3F4F6",
-    marginHorizontal: 12,
-    marginTop: 12,
+    backgroundColor: "rgba(2, 6, 23, 0.82)", // dark navy translucent
+    borderRadius: 16,
     padding: 14,
-    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "rgba(148, 163, 184, 0.18)",
   },
-  section: { fontSize: 18, fontWeight: "800", marginBottom: 8 },
-  line: { fontSize: 16, color: "#111827", marginTop: 4 },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "800",
+    color: "#FACC15",
+    marginBottom: 6,
+  },
+  rowText: {
+    color: "#E2E8F0",
+    fontSize: 15,
+    marginTop: 4,
+  },
+  bold: { fontWeight: "700", color: "#fff" },
 
-  // deck grid
-  deckGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-    marginTop: 8,
-  },
   deckItem: {
-    width: "23%", // ~4 per row
-    marginBottom: 16,
+    flex: 1,
     alignItems: "center",
+    marginBottom: 14,
   },
-  cardImage: {
-    width: 72,
-    height: 72,
-    borderRadius: 10,
-    backgroundColor: "#fff",
-  },
-  cardImageFallback: {
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#E5E7EB",
-  },
-  cardImageFallbackText: { color: "#6B7280", fontSize: 12 },
-  cardName: {
-    marginTop: 6,
-    fontSize: 12,
-    color: "#111827",
-    textAlign: "center",
-  },
+  deckImg: { width: 60, height: 70, borderRadius: 8 },
+  deckName: { marginTop: 4, fontSize: 12, color: "#fff", textAlign: "center" },
 });
 
